@@ -1,0 +1,29 @@
+{
+  "name": "Vertical Tabs View",
+  "version": "0.0.0.2",
+  "manifest_version": 3,
+  "action": {
+    "default_title": "Vertical Tabs View",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["storage","tabs"],
+  "icons": { 
+    "16": "verticaltabsview16.png",
+    "48": "verticaltabsview48.png",
+   "128": "verticaltabsview128.png"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+K"
+      },
+      "description": "Opens the extension popup."
+    }
+  }
+}
+
+
+

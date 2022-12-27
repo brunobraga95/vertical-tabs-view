@@ -1,0 +1,234 @@
+.default-button {
+  background-color:#388e3c;
+  border-radius: 5px;
+  color: white;
+  border:none;
+  outline:none;
+  cursor:pointer;
+  font-size:12px;
+  padding: 5px;
+}
+
+.default-button.secondary-button {
+  background-color: transparent !important; 
+  color:#388e3c !important;
+  border: 2px solid #388e3c;
+}
+
+.default-button:active {
+  transform: translateY(1px);
+  filter: saturate(150%);
+  background-color:#388e3c !important;
+  color: white !important;
+
+}
+
+.update-default-auto-deletion-input {
+  outline: 0;
+  border-width: 0 0 2px;
+  margin-top: 5px;
+  margin-right: 5px;
+}
+
+.auto-delete-button-wrapper {
+  position: relative;
+}
+  
+.updated-tooltip {
+  position: absolute;
+  color: white;
+  z-index: 1;
+  top: -35px;
+  width: 300px;
+  background-color: #777;
+  padding: 1px 5px;
+  border-radius: 5px;
+  left: 0px;
+  transform: translateX(calc(-100% + 15px));
+}
+
+.header-button {
+  font-size: 14px;
+  font-weight:500;
+  color:#757b86;
+  font-weight:600;
+}
+
+.header-button:focus{
+  outline: none;  
+}
+
+.sortIcon {
+  color:#757b86;
+  font-size: 10px;
+  margin-left: 3px;
+}
+
+.header-element {
+  cursor: pointer;
+  display: flex; 
+  align-items: center;
+}
+
+.close-all-button {
+  position: relative;
+}
+
+.close-button {
+  cursor: pointer;
+  width: 2.5%;
+}
+
+.close-button:hover {
+  color:red;
+}
+
+.close-tab-icon {
+  margin-left: 2px;
+  font-size: 18px !important;
+}
+
+.tab-info-wrapper {
+  width: calc(95% - 30px);
+  align-items:center;
+  display:flex;justify-content: space-between;margin-bottom: 5px;
+  background-color: #ffffff;
+  padding: 10px 15px;
+  border-radius: 6px; border: 1px solid #abb0b8;
+}
+
+.tab-info-wrapper:focus {
+  background-color:rgba(0, 180, 204, 0.35);
+}
+
+.close-all-icon {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  font-size: 10px;
+  font-size: 13px !important;
+}
+
+/*tooltip */
+.tooltip {
+  visibility: hidden;
+  z-index: 1;
+  
+  width: 130px;
+  padding: 10px;
+
+  background: #333;
+  color:white;
+  
+  position: absolute;
+  left: -140px;
+
+  border-radius: 9px;
+  font: 16px;
+  
+  box-shadow: 0 0 3px rgba(56, 54, 54, 0.86);
+}
+
+.close-all-button:hover .tooltip{
+  visibility: visible;
+}
+
+.site-link {
+  font-size: 12px;
+  font-weight:500;
+  color:#757b86;
+  font-weight: 700;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow: ellipsis;
+  cursor:pointer;
+}
+
+.info-chip {
+  display: none;
+  align-items: center;
+  margin: 0px 5px;
+  padding: 0px 10px 0px 35px;
+  background-color: #3dc6d8;
+  width: 120px;
+  height: 30px;
+  border-radius: 20px;
+  position: relative;
+}
+
+.chips-left-circle {
+  position: absolute;
+  background-color: #388e3c;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  left: 0px;
+  border-radius: 50%;
+  height: 30px;
+  width: 30px;
+}
+
+.chips-left-circle-text {
+  font-size: 14px;
+  color: white;
+  font-weight: 600;
+}
+
+.info-chip-text {
+  font-size: 13px;
+  font-weight:500;
+  color:white;
+  font-weight:600;
+}
+
+.title-header-wrapper {
+  margin-left: 8px;
+}
+
+.chips-header-wrapper {
+  width: 65%;
+  display: flex;
+}
+
+.left-elements-wrapper {
+  display: flex;
+  align-items: center;
+  width: 20%;
+}
+
+.duplicated-tabs-menu-icon {
+  position: absolute;
+  right: 2px;
+  color: #757b86;
+  cursor: pointer;
+}
+
+.duplicated-tabs-menu {
+  display: none;
+  position: absolute;
+  top: 35px;
+  right: 2px;
+  right: -120px;
+  width: 150px;
+  border-radius: 10px;
+  background: white;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px;
+}
+
+.duplicated-tabs-menu-item {
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.duplicated-tabs-menu-item:hover {
+  padding: 10px;
+  background-color: #dae1ec;
+}
+
+.duplicated-tabs-menu-item-text {
+  font-size: 12px;
+  color: black;
+  font-weight: 500;
+}
