@@ -41,6 +41,17 @@ const onKeyDownPressed = (e) => {
       }
     }
   }
+  if(e.code === "ArrowUp") {
+    let urlList = document.getElementsByClassName("tab-wrapper");
+    for(let i = urlList.length - 1; i >= 0; i--) {
+      let url = urlList[i];
+      let title = url.childNodes[0];
+      if(!url.style.cssText.includes("display: none")) {
+        title.focus();
+        break;
+      }
+    }
+  }
 }
 document.getElementById("search-bar").addEventListener("input", onSearchChanged);
 document.getElementById("search-bar").addEventListener("keydown", onKeyDownPressed);

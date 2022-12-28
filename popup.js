@@ -39,6 +39,7 @@ const focusOnTabKeyPress = (e) => {
 const tabOnKeyDown = (e) => {
   const tabIndex = e.currentTarget.tabIndex;
   const tabs = e.currentTarget.tabs;
+  let found = false;
 
   if (!e.code) return;
   if (e.code === "ArrowDown") {
@@ -52,13 +53,15 @@ const tabOnKeyDown = (e) => {
       }
       if(isVisible) {
         nextTitle.focus();
+        found = true;
         break;
       }
     }
+    if(!found) {
+      document.getElementById("search-bar").focus();
+    }
   }
-  let focused = false;
   if (e.code === "ArrowUp") {
-    let found = false;
     for(let i = tabIndex - 1; i >= 0; i--) {
       let nextTabWrapper = document.getElementById("tab_wrapper_" + tabs[i].id);
       let nextTitle = document.getElementById("tab_info_wrapper_" + tabs[i].id);
@@ -73,10 +76,8 @@ const tabOnKeyDown = (e) => {
         break;
       }
     }
-    if(!focused) {
-      if(!found) {
-        document.getElementById("search-bar").focus();
-      }
+    if(!found) {
+      document.getElementById("search-bar").focus();
     }
   }
 }
@@ -138,9 +139,7 @@ const CreateTabsListCompare = (a, b, type) => {
     return a.site.localeCompare(b.site);
   }
 }
-const debugImage = (e) => {
-  console.log(e);
-}
+
 const CreateTabsList = async (sortBy) => {
   const TAB_INDEX_OFFSET = 100;
   let currentTabIndexCounter = 0;
@@ -154,6 +153,7 @@ const CreateTabsList = async (sortBy) => {
     site = site.hostname.replace("www.", "");
     return { ...tab, site, updatedAt: tabsMetadata[tab.id] ? tabsMetadata[tab.id].updatedAt : -1 }
   });
+
   sortedTabs.sort((a, b) => CreateTabsListCompare(a, b, sortBy));
   let wrapper = document.getElementById("tabs-list");
   wrapper.replaceChildren();

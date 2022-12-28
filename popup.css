@@ -1,3 +1,6 @@
+.title {
+  margin: 0px;
+}
 .default-button {
   background-color:#388e3c;
   border-radius: 5px;
@@ -166,6 +169,20 @@
   left: 0px;
   border-radius: 50%;
   height: 30px;
+  width: 30px;
+}
+
+.open-tabs-wrapper {
+  position: absolute;
+  background-color: #388e3c;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  right: -35px;
+  border-radius: 50%;
+  height: 30px;
+  top: -3px;
   width: 30px;
 }
 

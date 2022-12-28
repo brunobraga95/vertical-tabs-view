@@ -59,15 +59,21 @@ const RemoveDuplicated = (e) => {
   const sortBy = e.currentTarget.sortBy;
 
   let ids = [];
+  let hasActive = false;
   Object.keys(duplicatedTabsMap).forEach((url) => {
     if(duplicatedTabsMap[url].counter > 1) {
       duplicatedTabsMap[url].tabs.forEach((tab, i) => {
-        if(i != 0) {
+        if(!tab.active) {
           ids.push(tab.id);
+        } else {
+          hasActive = true;
         }
       })
     }
   });
+  if(!hasActive) {
+    ids.shift();
+  }
   callback(ids, sortBy);
 }
 
@@ -233,24 +239,6 @@ export const CreateHeader =  (tabs, onSortedButtonClicked, onRemoveDuplicates) =
       duplicatedTabsHeaderWrapper.appendChild(duplicatedTabsMenu);
       
       chipsHeaderWrapper.appendChild(duplicatedTabsHeaderWrapper);
-
-      // open tabs
-      const oldTabsHeaderWrapper = document.createElement('div');
-      oldTabsHeaderWrapper.setAttribute("id", "open-tabs-wrapper");
-      oldTabsHeaderWrapper.className = "info-chip";
-      const oldTabsHeader = document.createElement('span');
-      oldTabsHeader.className = "info-chip-text"
-      oldTabsHeader.textContent = "tabs open";
-      oldTabsHeaderWrapper.appendChild(oldTabsHeader);
-      const oldTabsCounter = document.createElement('div');
-      oldTabsCounter.className = "chips-left-circle";
-      const oldTabsCounterText = document.createElement('span');
-      oldTabsCounterText.setAttribute("id", "open-tabs-counter");
-      oldTabsCounterText.className = "chips-left-circle-text"
-      oldTabsCounter.appendChild(oldTabsCounterText);
-      oldTabsHeaderWrapper.appendChild(oldTabsCounter)
-      
-      chipsHeaderWrapper.appendChild(oldTabsHeaderWrapper);
 
       // Active
       const activeHeaderWrapper = document.createElement('div');
