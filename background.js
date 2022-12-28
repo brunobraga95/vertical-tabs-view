@@ -36,7 +36,6 @@ function init() {
       for (let j = 0; j < t.length; j++) {
         tabs.push(t[j]);
       }
-
       updateBadgeText();
     }
   });

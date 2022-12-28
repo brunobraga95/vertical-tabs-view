@@ -266,6 +266,16 @@ const populateWithTabs = () => {
   CreateTabsList("ACTIVE_ASC");
 }
 
+const onBodyClicked = (e) => {
+  document.getElementById("search-bar").focus();
+}
+
+const addBodyEvents = () => {
+  const body = document.getElementById("body");
+  body.addEventListener('click', onBodyClicked);
+}
+
 populateWithTabs();
+addBodyEvents();
 document.getElementById("search-bar").focus();
 

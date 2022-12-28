@@ -104,6 +104,11 @@
   background-color:rgba(0, 180, 204, 0.35);
 }
 
+.tab-info-wrapper:hover {
+  background-color:rgba(0, 180, 204, 0.35);
+  cursor: pointer;
+}
+
 .close-all-icon {
   position: absolute;
   top: -8px;
