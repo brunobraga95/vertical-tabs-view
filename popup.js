@@ -1,4 +1,5 @@
 import { CreateHeader } from "./header.js";
+import { focusOnTab } from "./tab_utils.js";
 
 function retrievedTabsMetadata() {
   return new Promise((resolve, reject) => {
@@ -15,71 +16,6 @@ function retrievedTabsMetadata() {
 
 const focusOnTabEvent = (e) => {
   focusOnTab(e.currentTarget.tabId);
-}
-
-const focusOnTab = (id) => {
-  chrome.tabs.update(id, { active: true }, async () => {
-      let tab = await chrome.tabs.get(id);
-      if(tab.windowId) {
-        chrome.windows.update(
-          tab.windowId, { focused: true }, () => {});
-      }
-  });
-}
-
-const focusOnTabKeyPress = (e) => {
-  const id = e.currentTarget.tabId;
-  const sortBy = e.currentTarget.sortBy;
-
-  if(!e.code) return;
-  if(e.code === "Enter") focusOnTab(id);
-  if(e.code === "KeyX") onCloseTab(id, () => CreateTabsList(sortBy));
-}
-
-const tabOnKeyDown = (e) => {
-  const tabIndex = e.currentTarget.tabIndex;
-  const tabs = e.currentTarget.tabs;
-  let found = false;
-
-  if (!e.code) return;
-  if (e.code === "ArrowDown") {
-    for(let i = tabIndex + 1; i < tabs.length; i++) {
-      let nextTabWrapper = document.getElementById("tab_wrapper_" + tabs[i].id);
-      let nextTitle = document.getElementById("tab_info_wrapper_" + tabs[i].id);
-
-      let isVisible = false;
-      if(nextTabWrapper) {
-        isVisible = !nextTabWrapper.style.cssText.includes("display: none");
-      }
-      if(isVisible) {
-        nextTitle.focus();
-        found = true;
-        break;
-      }
-    }
-    if(!found) {
-      document.getElementById("search-bar").focus();
-    }
-  }
-  if (e.code === "ArrowUp") {
-    for(let i = tabIndex - 1; i >= 0; i--) {
-      let nextTabWrapper = document.getElementById("tab_wrapper_" + tabs[i].id);
-      let nextTitle = document.getElementById("tab_info_wrapper_" + tabs[i].id);
-
-      let isVisible = false;
-      if(nextTabWrapper) {
-        isVisible = !nextTabWrapper.style.cssText.includes("display: none");
-      }
-      if(isVisible) {
-        nextTitle.focus();
-        found = true;
-        break;
-      }
-    }
-    if(!found) {
-      document.getElementById("search-bar").focus();
-    }
-  }
 }
 
 const onCloseTabEvent = (e) => {
@@ -140,10 +76,7 @@ const CreateTabsListCompare = (a, b, type) => {
   }
 }
 
-const CreateTabsList = async (sortBy) => {
-  const TAB_INDEX_OFFSET = 100;
-  let currentTabIndexCounter = 0;
-
+const CreateTabsList = async (sortBy, scrollToTop = true) => {
   const tabsMetadata = await retrievedTabsMetadata();
   let tabs = await chrome.tabs.query({});
   CreateHeader(tabs, (sortBy) => CreateTabsList(sortBy), CloseAllTabsWithIds);
@@ -165,15 +98,14 @@ const CreateTabsList = async (sortBy) => {
 
     const tabInfoWrapper = document.createElement('div');
     tabInfoWrapper.className = "tab-info-wrapper";
+    if (index == 0) {
+      tabInfoWrapper.className += " focused-tab-info-wrapper";
+    }
     tabInfoWrapper.setAttribute("id", "tab_info_wrapper_" + tab.id);
-    tabInfoWrapper.setAttribute("tabindex", TAB_INDEX_OFFSET + currentTabIndexCounter++);
+    tabInfoWrapper.setAttribute("tabindex", -1);
     tabInfoWrapper.addEventListener('click', focusOnTabEvent);
     tabInfoWrapper.tabId = tab.id;
     tabInfoWrapper.sortBy = sortBy;
-    tabInfoWrapper.addEventListener('keypress', focusOnTabKeyPress);
-    tabInfoWrapper.addEventListener("keydown", tabOnKeyDown);
-    tabInfoWrapper.tabs = sortedTabs;
-    tabInfoWrapper.tabIndex = index;
 
     const siteWrapper = document.createElement('div');
     siteWrapper.style.cssText = 'display:flex; width: 5%';
@@ -233,7 +165,7 @@ const CreateTabsList = async (sortBy) => {
     closeTab.appendChild(closeTabIcon);
     closeTab.addEventListener('click', onCloseTabEvent);
     closeTab.tabId = tab.id;
-    closeTab.callback = () => CreateTabsList(sortBy);
+    closeTab.callback = () => CreateTabsList(sortBy, false);
      
     const closeAllDown = document.createElement('div');
     closeAllDown.className = "close-button close-all-button left"
@@ -252,14 +184,17 @@ const CreateTabsList = async (sortBy) => {
     closeAllDown.addEventListener('click', CloseAllTabsFromId);
     closeAllDown.tabId = tab.id;
     closeAllDown.sortedTabs = sortedTabs;
-    closeAllDown.callback = () => CreateTabsList(sortBy);
+    closeAllDown.callback = () => CreateTabsList(sortBy, false);
 
     tabWrapper.appendChild(tabInfoWrapper);
     tabWrapper.appendChild(closeTab);
     tabWrapper.appendChild(closeAllDown);
     
     wrapper.appendChild(tabWrapper);    
-  }) 
+  });
+  if(scrollToTop && document.getElementsByClassName("tab-wrapper")?.length > 0) {
+    document.getElementsByClassName("tab-wrapper")[0].childNodes[0].scrollIntoView({block: "center", behavior: "instant"});
+  }
 }
 
 const populateWithTabs = () => {
