@@ -20,6 +20,7 @@
       "suggested_key": {
         "default": "Ctrl+E",
         "mac": "Command+E",
+        "windows": "Ctrl+I",
         "linux": "Ctrl+Q"
       },
       "description": "Opens the extension popup."
