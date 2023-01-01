@@ -6,11 +6,12 @@
   <link rel="stylesheet" href="popup.css">
   <link rel="stylesheet" href="searchbar.css">
 </head>
-<body id="body" style="margin: 0px;padding: 15px;background-color: #f6f7f8;">
+<body id="body" style="margin: 0px;background-color: #f6f7f8;">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet">
     <div style="width:600px;">
-      <div style="margin-right:10px;font-weight:500;margin-bottom: 20px; position: relative;display:inline-block;">
+      <div style="position:sticky;top:0px;background-color: #f6f7f8;z-index:10;padding: 0 15px;";>
+      <div style="font-weight:500;margin: 20px 0px; position: relative;display:inline-block;">
         <h2 class="title">Vertical Tabs View</h2>
         <div class="open-tabs-wrapper" id="open-tabs-wrapper">
           <span id="open-tabs-counter"></span>
@@ -22,11 +23,13 @@
           <span class="material-icons">search</span>
        </button>
      </div>
-      <div id="header" style="width: 100%">
-      </div>    
-      <div id="tabs-list" style="width: 100%">
+     <div id="header" style="width: 100%">
+    </div>  
+    </div>  
+      <div id="tabs-list" style="padding: 15px;">
       </div>    
     </div>
+    <script type="module" src="tab_utils.js" charset="utf-8"></script>
     <script type="module" src="popup.js" charset="utf-8"></script>
     <script type="module" src="header.js" charset="utf-8"></script>
     <script type="module" src="searchbar.js" charset="utf-8"></script>

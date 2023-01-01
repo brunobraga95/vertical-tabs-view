@@ -100,13 +100,13 @@
   border-radius: 6px; border: 1px solid #abb0b8;
 }
 
-.tab-info-wrapper:focus {
+.focused-tab-info-wrapper {
   background-color:rgba(0, 180, 204, 0.35);
 }
 
 .tab-info-wrapper:hover {
-  background-color:rgba(0, 180, 204, 0.35);
   cursor: pointer;
+  text-decoration: underline;
 }
 
 .close-all-icon {
