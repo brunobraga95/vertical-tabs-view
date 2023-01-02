@@ -78,7 +78,7 @@ const RemoveDuplicated = (e) => {
 }
 
 function maybeRemoveURLParameter(url) {
-  const exceptions_list = ["https://www.google.com/search"];
+  const exceptions_list = ["https://www.google.com/search", "https://www.youtube.com/watch"];
   if(exceptions_list.includes(url.split("?")[0])) {
     return url;
   }
