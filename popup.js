@@ -142,7 +142,7 @@ const CreateTabsList = async (sortBy, scrollToTop = true) => {
     const updatedAgoDays = parseInt(updatedAgoHours / 24);
 
     let updateAgo;
-    if(tab.updatedAt == -1) updateAgo = "--";
+    if(tab.updatedAt == -1) updateAgo = "1m ago";
     else if (updatedAgoDays > 0) updateAgo = updatedAgoDays + "d ago";
     else if (updatedAgoHours > 0) updateAgo = updatedAgoHours + "h ago";
     else if (updatedAgoMinutes > 0) updateAgo = updatedAgoMinutes + "m ago";

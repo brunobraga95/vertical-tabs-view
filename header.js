@@ -77,26 +77,17 @@ const RemoveDuplicated = (e) => {
   callback(ids, sortBy);
 }
 
-function maybeRemoveURLParameter(url) {
-  const exceptions_list = ["https://www.google.com/search", "https://www.youtube.com/watch"];
-  if(exceptions_list.includes(url.split("?")[0])) {
-    return url;
-  }
-  return url.split("?")[0];
-}
-
 const getDuplicatedTabs = (tabs) => {
   let duplicatedTabsMap = {}
   for(let i = 0; i < tabs.length; i++) {
-    const urlWithoutParams = maybeRemoveURLParameter(tabs[i].url);
-    if(!duplicatedTabsMap[urlWithoutParams]) {
-      duplicatedTabsMap[urlWithoutParams] = {
+    if(!duplicatedTabsMap[tabs[i].url]) {
+      duplicatedTabsMap[tabs[i].url] = {
         tabs: [tabs[i]],
         counter: 1,
       }
     } else {
-      duplicatedTabsMap[urlWithoutParams].counter = duplicatedTabsMap[urlWithoutParams].counter + 1;
-      duplicatedTabsMap[urlWithoutParams].tabs.push(tabs[i]);
+      duplicatedTabsMap[tabs[i].url].counter = duplicatedTabsMap[tabs[i].url].counter + 1;
+      duplicatedTabsMap[tabs[i].url].tabs.push(tabs[i]);
     }
   }
   return duplicatedTabsMap;
