@@ -49,17 +49,9 @@ const CloseAllTabsWithIds = (ids, sortBy) => {
 
 const CreateTabsListCompare = (a, b, type) => {
   if (type == "ACTIVE_ASC") {
-    if(a.upatedAt == -1 && b.updatedAt == -1) {
-      return 1;
-    } else if (a.upatedAt == -1) return -1;
-    else if (b.upatedAt == -1) return 1;
     return b.updatedAt - a.updatedAt;
   }
   if (type == "ACTIVE_DESC") {
-    if(a.upatedAt == -1 && b.updatedAt == -1) {
-      return 1;
-    } else if (a.upatedAt == -1) return -1;
-    else if (b.upatedAt == -1) return 1;
     return a.updatedAt - b.updatedAt;
   }
   if (type == "TITLE_ASC") {
@@ -84,7 +76,7 @@ const CreateTabsList = async (sortBy, scrollToTop = true) => {
   const sortedTabs = tabs.map(tab => {
     let site = (new URL(tab.url));
     site = site.hostname.replace("www.", "");
-    return { ...tab, site, updatedAt: tabsMetadata[tab.id] ? tabsMetadata[tab.id].updatedAt : -1 }
+    return { ...tab, site, updatedAt: tabsMetadata[tab.id] ? tabsMetadata[tab.id].updatedAt : Date.now() }
   });
 
   sortedTabs.sort((a, b) => CreateTabsListCompare(a, b, sortBy));
@@ -142,8 +134,7 @@ const CreateTabsList = async (sortBy, scrollToTop = true) => {
     const updatedAgoDays = parseInt(updatedAgoHours / 24);
 
     let updateAgo;
-    if(tab.updatedAt == -1) updateAgo = "1m ago";
-    else if (updatedAgoDays > 0) updateAgo = updatedAgoDays + "d ago";
+    if (updatedAgoDays > 0) updateAgo = updatedAgoDays + "d ago";
     else if (updatedAgoHours > 0) updateAgo = updatedAgoHours + "h ago";
     else if (updatedAgoMinutes > 0) updateAgo = updatedAgoMinutes + "m ago";
     else updateAgo = "1m ago"
