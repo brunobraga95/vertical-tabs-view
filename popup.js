@@ -1,5 +1,6 @@
 import { CreateHeader } from "./header.js";
 import { focusOnTab } from "./tab_utils.js";
+import { filterBasedOnSearchValue } from "./searchbar.js";
 
 function retrievedTabsMetadata() {
   return new Promise((resolve, reject) => {
@@ -186,6 +187,7 @@ const CreateTabsList = async (sortBy, scrollToTop = true) => {
   if(scrollToTop && document.getElementsByClassName("tab-wrapper")?.length > 0) {
     document.getElementsByClassName("tab-wrapper")[0].childNodes[0].scrollIntoView({block: "center", behavior: "instant"});
   }
+  filterBasedOnSearchValue(document.getElementById("search-bar")?.value || "");
 }
 
 const populateWithTabs = () => {

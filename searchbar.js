@@ -14,32 +14,35 @@ const debounce = (func, wait) => {
     };
   };
 
-const onSearchChanged = debounce((e) => {
-    let value = e.target.value.toLowerCase();
-    let urlList = document.getElementsByClassName("tab-wrapper");
-    let firstVisibleFound = false;
-    for(let i = 0; i < urlList.length; i++) {
-      let url = urlList[i];
-      let tabInfo = url.childNodes[0];
-      let urlValue = url.childNodes[0].childNodes[1].childNodes[0].attributes[1].textContent || "";
-      let titleValue = url.childNodes[0].childNodes[1].childNodes[0].innerText || "";
-      urlValue = urlValue.toLowerCase();
-      titleValue = titleValue.toLowerCase();
-      if(value != "" && !urlValue.includes(value) && !titleValue.includes(value)) {
-        url.style.cssText = url.style.cssText + "display:none";
-        if (tabInfo.classList.contains("focused-tab-info-wrapper")) {
-          tabInfo.classList.remove("focused-tab-info-wrapper");
-        }
-      } else {
-        url.style.cssText = url.style.cssText + "display:flex";
-        if (!firstVisibleFound) {
-          tabInfo.classList.add("focused-tab-info-wrapper");
-          firstVisibleFound = true;
-        } else if (tabInfo.classList.contains("focused-tab-info-wrapper")) {
-          tabInfo.classList.remove("focused-tab-info-wrapper");
-        }
+export const filterBasedOnSearchValue = (text) => {
+  let value = text.toLowerCase();
+  let urlList = document.getElementsByClassName("tab-wrapper");
+  let firstVisibleFound = false;
+  for(let i = 0; i < urlList.length; i++) {
+    let url = urlList[i];
+    let tabInfo = url.childNodes[0];
+    let urlValue = url.childNodes[0].childNodes[1].childNodes[0].attributes[1].textContent || "";
+    let titleValue = url.childNodes[0].childNodes[1].childNodes[0].innerText || "";
+    urlValue = urlValue.toLowerCase();
+    titleValue = titleValue.toLowerCase();
+    if(value != "" && !urlValue.includes(value) && !titleValue.includes(value)) {
+      url.style.cssText = url.style.cssText + "display:none";
+      if (tabInfo.classList.contains("focused-tab-info-wrapper")) {
+        tabInfo.classList.remove("focused-tab-info-wrapper");
+      }
+    } else {
+      url.style.cssText = url.style.cssText + "display:flex";
+      if (!firstVisibleFound) {
+        tabInfo.classList.add("focused-tab-info-wrapper");
+        firstVisibleFound = true;
+      } else if (tabInfo.classList.contains("focused-tab-info-wrapper")) {
+        tabInfo.classList.remove("focused-tab-info-wrapper");
       }
     }
+  }
+}
+const onSearchChanged = debounce((e) => {
+  filterBasedOnSearchValue(e.target.value.toLowerCase());
 }, 300);
 
 const onKeyDownPressed = (e) => {
