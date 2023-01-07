@@ -26,12 +26,12 @@ export const filterBasedOnSearchValue = (text) => {
     urlValue = urlValue.toLowerCase();
     titleValue = titleValue.toLowerCase();
     if(value != "" && !urlValue.includes(value) && !titleValue.includes(value)) {
-      url.style.cssText = url.style.cssText + "display:none";
+      url.style.cssText = url.style.cssText + "display:none !important";
       if (tabInfo.classList.contains("focused-tab-info-wrapper")) {
         tabInfo.classList.remove("focused-tab-info-wrapper");
       }
     } else {
-      url.style.cssText = url.style.cssText + "display:flex";
+      url.style.cssText = url.style.cssText.replace("display: none !important", "");
       if (!firstVisibleFound) {
         tabInfo.classList.add("focused-tab-info-wrapper");
         firstVisibleFound = true;

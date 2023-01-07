@@ -254,3 +254,19 @@
   color: black;
   font-weight: 500;
 }
+
+.highlight-duplicated-chip-popup-open {
+  border: 2px solid rgb(0, 180, 204);
+  top: -2px;
+}
+
+.highlighted-duplicated-tabs {
+  border: 3px solid rgb(0, 180, 204);
+  top: -3px;
+}
+
+.tab-wrapper {
+  display: flex !important;
+  align-items:center;
+  justify-content: space-around;
+}
