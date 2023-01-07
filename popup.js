@@ -72,7 +72,6 @@ const CreateTabsListCompare = (a, b, type) => {
 const CreateTabsList = async (sortBy, scrollToTop = true) => {
   const tabsMetadata = await retrievedTabsMetadata();
   let tabs = await chrome.tabs.query({});
-  CreateHeader(tabs, (sortBy) => CreateTabsList(sortBy), CloseAllTabsWithIds);
 
   const sortedTabs = tabs.map(tab => {
     let site = (new URL(tab.url));
@@ -187,6 +186,7 @@ const CreateTabsList = async (sortBy, scrollToTop = true) => {
   if(scrollToTop && document.getElementsByClassName("tab-wrapper")?.length > 0) {
     document.getElementsByClassName("tab-wrapper")[0].childNodes[0].scrollIntoView({block: "center", behavior: "instant"});
   }
+  CreateHeader(tabs, (sortBy) => CreateTabsList(sortBy), CloseAllTabsWithIds);
   filterBasedOnSearchValue(document.getElementById("search-bar")?.value || "");
 }
 

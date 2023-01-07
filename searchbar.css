@@ -4,30 +4,34 @@
     display: flex;
   }
   
-  .searchTerm {
-    width: 100%;
-    border: 3px solid #00B4CC;
-    border-right: none;
-    padding: 5px;
-    height: 15px;
-    border-radius: 5px 0 0 5px;
-    outline: none;
-    color: #757b86;
-  }
-  
-  .searchTerm:focus{
-    color: #757b86;
-  }
-  
-  .searchButton {
-    width: 40px;
-    height: 31px;
-    border: 1px solid #00B4CC;
-    background: #00B4CC;
-    text-align: center;
-    color: #fff;
-    border-radius: 0 5px 5px 0;
-    cursor: default;
-    font-size: 15px;
-  }
+.searchTerm {
+  width: 100%;
+  border: 3px solid #00B4CC;
+  border-right: none;
+  padding: 5px;
+  height: 15px;
+  border-radius: 5px 0 0 5px;
+  outline: none;
+  color: #757b86;
+}
+
+.searchTerm:focus{
+  color: #757b86;
+}
+
+.searchButton {
+  width: 40px;
+  height: 31px;
+  border: 1px solid #00B4CC;
+  background: #00B4CC;
+  text-align: center;
+  color: #fff;
+  border-radius: 0 5px 5px 0;
+  cursor: default;
+  font-size: 15px;
+}
+
+.duplicated-tabs-wrapper {
+  cursor: pointer;
+}
   
