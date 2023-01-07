@@ -1,4 +1,5 @@
 import { focusOnTab } from "./tab_utils.js";
+import { AreDuplicatedHighlighted } from "./header.js";
 
 const debounce = (func, wait) => {
     let timeout;
@@ -25,13 +26,15 @@ export const filterBasedOnSearchValue = (text) => {
     let titleValue = url.childNodes[0].childNodes[1].childNodes[0].innerText || "";
     urlValue = urlValue.toLowerCase();
     titleValue = titleValue.toLowerCase();
+    const isTabDuplicatedAndHighlighted = tabInfo.style.cssText.includes("border: 3px solid rgb(0, 180, 204);");
+    console.log(tabInfo.style.cssText);
     if(value != "" && !urlValue.includes(value) && !titleValue.includes(value)) {
-      url.style.cssText = url.style.cssText + "display:none";
+      url.style.cssText = url.style.cssText + "display:none !important";
       if (tabInfo.classList.contains("focused-tab-info-wrapper")) {
         tabInfo.classList.remove("focused-tab-info-wrapper");
       }
-    } else {
-      url.style.cssText = url.style.cssText + "display:flex";
+    } else if(!AreDuplicatedHighlighted() || isTabDuplicatedAndHighlighted) {
+      url.style.cssText = url.style.cssText + "display:flex !important";
       if (!firstVisibleFound) {
         tabInfo.classList.add("focused-tab-info-wrapper");
         firstVisibleFound = true;

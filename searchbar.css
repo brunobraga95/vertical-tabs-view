@@ -31,3 +31,6 @@
     font-size: 15px;
   }
   
+.duplicated-tabs-wrapper {
+  cursor: pointer;
+}

@@ -1,54 +1,104 @@
 
 let CURRENT_SORT_TYPE = "ACTIVE_ASC";
 
-const showDuplicatedTabs = () => {
+
+const closeDuplicatedTabsMenu = () => {
   const duplicatedTabsMenu = document.getElementById("duplicated-tabs-menu");
   const duplicatedTabsMenuIcon = document.getElementById("duplicated-tabs-menu-icon");
+  const duplicateTabsWrapper = document.getElementById("duplicated-tabs-wrapper");
+
+  duplicatedTabsMenuIcon.style.cssText = "";
+  duplicatedTabsMenu.style.cssText = duplicatedTabsMenu.style.cssText.replace("display: block;", "");
+  duplicateTabsWrapper.classList.remove("highlight-duplicated-chip-popup-open");
+}
+
+const openDuplicatedTabsMenu = () => {
+  const duplicatedTabsMenu = document.getElementById("duplicated-tabs-menu");
+  const duplicatedTabsMenuIcon = document.getElementById("duplicated-tabs-menu-icon");
+  const duplicateTabsWrapper = document.getElementById("duplicated-tabs-wrapper");
+
+  duplicatedTabsMenu.style.cssText = duplicatedTabsMenu.style.cssText + "display: block;"
+  duplicatedTabsMenuIcon.style.cssText = "font-weight: 700 !important;";
+  duplicateTabsWrapper.classList.add("highlight-duplicated-chip-popup-open");
+}
+
+// To close the popup on outside click.
+document.addEventListener("click", (evt) => {
+  const duplicatedTabsMenu = document.getElementById("duplicated-tabs-menu");
+  const duplicateTabsWrapper = document.getElementById("duplicated-tabs-wrapper");
+
+  if (duplicatedTabsMenu.style.cssText.includes("display: block;") 
+    && !duplicatedTabsMenu.contains(evt.target) && !duplicateTabsWrapper.contains(evt.target)) {
+    closeDuplicatedTabsMenu();
+  }    
+});
+
+const showDuplicatedTabs = () => {
+  const duplicatedTabsMenu = document.getElementById("duplicated-tabs-menu");
 
   if (!duplicatedTabsMenu.style.cssText.includes("display: block;")) {
-    duplicatedTabsMenu.style.cssText = duplicatedTabsMenu.style.cssText + "display: block;"
-    duplicatedTabsMenuIcon.style.cssText = "font-weight: 700 !important;";
+    openDuplicatedTabsMenu();
   } else {
-    duplicatedTabsMenuIcon.style.cssText = "";
-    duplicatedTabsMenu.style.cssText = duplicatedTabsMenu.style.cssText.replace("display: block;", "");
+    closeDuplicatedTabsMenu();
   }
 }
 
-const HighLightDuplicated = (e) => {
+export const AreDuplicatedHighlighted = () => {
+  const highlightDuplicatedItemText = document.getElementById("duplicated-tabs-text");
+  return highlightDuplicatedItemText.textContent === "unhighlight duplicated";
+}
+
+const HighLightOrUnHighLightDuplicated = (e) => {
+  const duplicatedTabsMap = e.currentTarget.duplicatedTabsMap;
+  if(AreDuplicatedHighlighted()) {
+    UnhighLightDuplicatedTabs(duplicatedTabsMap);
+  } else {
+    HighLightDuplicatedTabs(duplicatedTabsMap);
+  }
+}
+
+const UnhighLightDuplicatedTabs = (duplicatedTabsMap) => {
   const duplicateTabsWrapper = document.getElementById("duplicated-tabs-wrapper");
   const highlightDuplicatedItemText = document.getElementById("duplicated-tabs-text");
 
-  if(duplicateTabsWrapper.style.cssText.includes("border: 3px solid rgb(0, 180, 204);")) {
-    duplicateTabsWrapper.style.cssText = duplicateTabsWrapper.style.cssText.replace("border: 3px solid rgb(0, 180, 204);", "");
-    duplicateTabsWrapper.style.cssText = duplicateTabsWrapper.style.cssText.replace("top: -3px;", "");
-    highlightDuplicatedItemText.textContent = "highlight duplicated";
-  } else {
-    duplicateTabsWrapper.style.cssText += "border: 3px solid rgb(0, 180, 204);top: -3px";
-    highlightDuplicatedItemText.textContent = "unhighlight duplicated";
-  }
-
-  const duplicatedTabsMap = e.currentTarget.duplicatedTabsMap;
-  HighLightDuplicatedTabs(duplicatedTabsMap);
-}
-
-const HighLightDuplicatedTabs = (duplicatedTabsMap) => {
+  duplicateTabsWrapper.classList.remove("highlighted-duplicated-tabs");
+  highlightDuplicatedItemText.textContent = "highlight duplicated";
   Object.keys(duplicatedTabsMap).forEach((url) => {
     if(duplicatedTabsMap[url].counter > 1) {
+      console.log("hallo");
       duplicatedTabsMap[url].tabs.forEach(tab => {
         const tabInfoWrapper = document.getElementById("tab_info_wrapper_" + tab.id);
-        if(tabInfoWrapper.style.cssText.includes("border: 3px solid rgb(0, 180, 204);")) {
-          tabInfoWrapper.style.cssText = tabInfoWrapper.style.cssText.replace("border: 3px solid rgb(0, 180, 204);", "");
-        } else {
-          tabInfoWrapper.style.cssText += "border: 3px solid rgb(0, 180, 204);";
-        }
+        tabInfoWrapper.style.cssText = tabInfoWrapper.style.cssText.replace("border: 3px solid rgb(0, 180, 204);", "");
       })
+    } else {
+      const tabWrapper = document.getElementById("tab_wrapper_" + duplicatedTabsMap[url].tabs[0].id);
+      tabWrapper.style.cssText = tabWrapper.style.cssText.replace("display: none !important;", "");
     }
   });
 }
 
-const MaybeHighlightTabs = (duplicatedTabsMap) => {
+const HighLightDuplicatedTabs = (duplicatedTabsMap) => {
   const duplicateTabsWrapper = document.getElementById("duplicated-tabs-wrapper");
-  if(duplicateTabsWrapper.style.cssText.includes("border: 3px solid rgb(0, 180, 204);")) {
+  const highlightDuplicatedItemText = document.getElementById("duplicated-tabs-text");
+
+  duplicateTabsWrapper.classList.add("highlighted-duplicated-tabs");
+  highlightDuplicatedItemText.textContent = "unhighlight duplicated";
+
+  Object.keys(duplicatedTabsMap).forEach((url) => {
+    if(duplicatedTabsMap[url].counter > 1) {
+      duplicatedTabsMap[url].tabs.forEach(tab => {
+        const tabInfoWrapper = document.getElementById("tab_info_wrapper_" + tab.id);
+        tabInfoWrapper.style.cssText += "border: 3px solid rgb(0, 180, 204);";
+      })
+    } else {
+      const tabWrapper = document.getElementById("tab_wrapper_" + duplicatedTabsMap[url].tabs[0].id);
+      tabWrapper.style.cssText += "display: none !important;";
+    }
+  });
+}
+
+export const MaybeHighlightTabs = (duplicatedTabsMap) => {
+  if(AreDuplicatedHighlighted()) {
     HighLightDuplicatedTabs(duplicatedTabsMap);
   }
 }
@@ -59,9 +109,9 @@ const RemoveDuplicated = (e) => {
   const sortBy = e.currentTarget.sortBy;
 
   let ids = [];
-  let hasActive = false;
   Object.keys(duplicatedTabsMap).forEach((url) => {
     if(duplicatedTabsMap[url].counter > 1) {
+      let hasActive = false;
       duplicatedTabsMap[url].tabs.forEach((tab, i) => {
         if(!tab.active) {
           ids.push(tab.id);
@@ -69,11 +119,12 @@ const RemoveDuplicated = (e) => {
           hasActive = true;
         }
       })
+      if(!hasActive) {
+        ids.shift();
+      }
     }
   });
-  if(!hasActive) {
-    ids.shift();
-  }
+  console.log(ids);
   callback(ids, sortBy);
 }
 
@@ -109,6 +160,8 @@ export const ShowChipsIfNeeded = (tabs) => {
     duplicateTabsCounter.textContent = duplicatesCounter.toString();    
   } else {
     duplicateTabsWrapper.style.cssText += " display: none;";
+    // If duplicated tabs were highlighed, unhilight it.
+    UnhighLightDuplicatedTabs(duplicatedTabsMap);
   }
   
   if(tabs.length > 0) {
@@ -122,8 +175,9 @@ export const ShowChipsIfNeeded = (tabs) => {
 
 export const CreateHeader =  (tabs, onSortedButtonClicked, onRemoveDuplicates) => {
     let wrapper = document.getElementById("header");
+    const duplicatedTabsMap = getDuplicatedTabs(tabs);
+
     if(wrapper.children.length === 0) {
-      const duplicatedTabsMap = getDuplicatedTabs(tabs);
       const header = document.createElement('div');
       header.style.cssText = "width: calc(95% - 30px); display: flex; justify-content:space-between; padding: 10px 15px";
 
@@ -147,7 +201,6 @@ export const CreateHeader =  (tabs, onSortedButtonClicked, onRemoveDuplicates) =
             CURRENT_SORT_TYPE = "SITE_DESC";
           else CURRENT_SORT_TYPE = "SITE_ASC";
           await onSortedButtonClicked(CURRENT_SORT_TYPE);
-          MaybeHighlightTabs(duplicatedTabsMap);
       });
 
       // Title
@@ -167,7 +220,6 @@ export const CreateHeader =  (tabs, onSortedButtonClicked, onRemoveDuplicates) =
             CURRENT_SORT_TYPE = "TITLE_DESC";
           else CURRENT_SORT_TYPE = "TITLE_ASC";
           await onSortedButtonClicked(CURRENT_SORT_TYPE);
-          MaybeHighlightTabs(duplicatedTabsMap);
       });
 
       const chipsHeaderWrapper = document.createElement('div');
@@ -176,7 +228,7 @@ export const CreateHeader =  (tabs, onSortedButtonClicked, onRemoveDuplicates) =
       // duplicated tabs
       const duplicatedTabsHeaderWrapper = document.createElement('div');
       duplicatedTabsHeaderWrapper.setAttribute("id", "duplicated-tabs-wrapper");
-      duplicatedTabsHeaderWrapper.className = "info-chip";
+      duplicatedTabsHeaderWrapper.className = "info-chip duplicated-tabs-wrapper";
       const duplicatedTablsHeader = document.createElement('span');
       duplicatedTablsHeader.className = "info-chip-text"
       duplicatedTablsHeader.textContent = "duplicated tabs";
@@ -194,7 +246,7 @@ export const CreateHeader =  (tabs, onSortedButtonClicked, onRemoveDuplicates) =
       duplicatedTabsMenuIcon.textContent = "more_vert";
       duplicatedTabsMenuIcon.className = "material-icons duplicated-tabs-menu-icon"
       duplicatedTabsHeaderWrapper.appendChild(duplicatedTabsMenuIcon);
-      duplicatedTabsMenuIcon.addEventListener('click', showDuplicatedTabs);
+      duplicatedTabsHeaderWrapper.addEventListener('click', showDuplicatedTabs);
     
       const duplicatedTabsMenu = document.createElement('div');
       duplicatedTabsMenu.className = "duplicated-tabs-menu";
@@ -202,7 +254,7 @@ export const CreateHeader =  (tabs, onSortedButtonClicked, onRemoveDuplicates) =
 
       const highlightDuplicatedItem = document.createElement('div');
       highlightDuplicatedItem.className = "duplicated-tabs-menu-item";
-      highlightDuplicatedItem.addEventListener('click', HighLightDuplicated);
+      highlightDuplicatedItem.addEventListener('click', HighLightOrUnHighLightDuplicated);
       highlightDuplicatedItem.duplicatedTabsMap = duplicatedTabsMap;
 
       const highlightDuplicatedItemText = document.createElement('span');
@@ -249,7 +301,6 @@ export const CreateHeader =  (tabs, onSortedButtonClicked, onRemoveDuplicates) =
             CURRENT_SORT_TYPE = "ACTIVE_DESC";
           else CURRENT_SORT_TYPE = "ACTIVE_ASC";
           await onSortedButtonClicked(CURRENT_SORT_TYPE);
-          MaybeHighlightTabs(duplicatedTabsMap);
       });
       leftElementsHeader.appendChild(siteHeaderWrapper);
       leftElementsHeader.appendChild(titleHeaderWrapper);
@@ -261,5 +312,6 @@ export const CreateHeader =  (tabs, onSortedButtonClicked, onRemoveDuplicates) =
       wrapper.appendChild(header);
     }
     ShowChipsIfNeeded(tabs);
+    MaybeHighlightTabs(duplicatedTabsMap);
 }
   
