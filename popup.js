@@ -30,7 +30,8 @@ const onCloseTab = (id, callback) => {
 const CloseAllTabsFromId = (e) => {
   const id = e.currentTarget.tabId;
   const tabs = e.currentTarget.sortedTabs;
-  const callback = e.currentTarget.callback;
+  // Fix sortBy issue.
+  const sortBy = e.currentTarget.sortBy;
 
   let found = false;
   let ids = []
@@ -41,12 +42,12 @@ const CloseAllTabsFromId = (e) => {
       ids.push(tabs[i].id);
     }
   }
-  chrome.tabs.remove(ids, callback);
+  CloseAllTabsWithIds(ids, sortBy, false);
 }
 
-const CloseAllTabsWithIds = (ids, sortBy) => {
+const CloseAllTabsWithIds = (ids, sortBy, scrollToTop = true) => {
   chrome.tabs.remove(ids, () => {
-    chrome.storage.sync.remove(ids.map((id) => id.toString()), () => CreateTabsList(sortBy));
+    chrome.storage.sync.remove(ids.map((id) => Number.isInteger(id) ? id.toString() : id), () => CreateTabsList(sortBy, scrollToTop));
   });
 }
 
