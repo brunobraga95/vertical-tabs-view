@@ -45,7 +45,9 @@ const CloseAllTabsFromId = (e) => {
 }
 
 const CloseAllTabsWithIds = (ids, sortBy) => {
-  chrome.tabs.remove(ids, () => CreateTabsList(sortBy));
+  chrome.tabs.remove(ids, () => {
+    chrome.storage.sync.remove(ids.map((id) => id.toString()), () => CreateTabsList(sortBy));
+  });
 }
 
 const CreateTabsListCompare = (a, b, type) => {

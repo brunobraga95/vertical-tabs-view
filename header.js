@@ -113,7 +113,7 @@ const RemoveDuplicated = (e) => {
         }
       })
       if(!hasActive) {
-        ids.shift();
+        ids.pop();
       }
     }
   });
