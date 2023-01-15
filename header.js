@@ -22,7 +22,7 @@ const openDuplicatedTabsMenu = () => {
   duplicateTabsWrapper.classList.add("highlight-duplicated-chip-popup-open");
 }
 
-// To close the popup on outside click.
+// To close the popup on outside click in the menu.
 document.addEventListener("click", (evt) => {
   const duplicatedTabsMenu = document.getElementById("duplicated-tabs-menu");
   const duplicateTabsWrapper = document.getElementById("duplicated-tabs-wrapper");
@@ -234,33 +234,33 @@ export const CreateHeader =  (tabs, onSortedButtonClicked, onRemoveDuplicates) =
       const duplicatedTabsMenuIcon = document.createElement('span');
       duplicatedTabsMenuIcon.setAttribute("id", "duplicated-tabs-menu-icon");
       duplicatedTabsMenuIcon.textContent = "more_vert";
-      duplicatedTabsMenuIcon.className = "material-icons duplicated-tabs-menu-icon"
+      duplicatedTabsMenuIcon.className = "material-icons popup-menu-icon"
       duplicatedTabsHeaderWrapper.appendChild(duplicatedTabsMenuIcon);
       duplicatedTabsHeaderWrapper.addEventListener('click', showDuplicatedTabs);
     
       const duplicatedTabsMenu = document.createElement('div');
-      duplicatedTabsMenu.className = "duplicated-tabs-menu";
+      duplicatedTabsMenu.className = "popup-menu";
       duplicatedTabsMenu.setAttribute("id", "duplicated-tabs-menu");
 
       const highlightDuplicatedItem = document.createElement('div');
-      highlightDuplicatedItem.className = "duplicated-tabs-menu-item";
+      highlightDuplicatedItem.className = "popup-menu-item";
       highlightDuplicatedItem.addEventListener('click', HighLightOrUnHighLightDuplicated);
 
       const highlightDuplicatedItemText = document.createElement('span');
       highlightDuplicatedItemText.setAttribute("id", "duplicated-tabs-text");
-      highlightDuplicatedItemText.className = "duplicated-tabs-menu-item-text";
+      highlightDuplicatedItemText.className = "popup-menu-item-text";
       highlightDuplicatedItemText.textContent = "highlight duplicated";
 
       highlightDuplicatedItem.appendChild(highlightDuplicatedItemText);
 
       const removeDuplicatedItem = document.createElement('div');
-      removeDuplicatedItem.className = "duplicated-tabs-menu-item";
+      removeDuplicatedItem.className = "popup-menu-item";
       removeDuplicatedItem.addEventListener('click', RemoveDuplicated);
       removeDuplicatedItem.sortBy = CURRENT_SORT_TYPE;
       removeDuplicatedItem.callback = onRemoveDuplicates;
 
       const removeDuplicatedItemText = document.createElement('span');
-      removeDuplicatedItemText.className = "duplicated-tabs-menu-item-text";
+      removeDuplicatedItemText.className = "popup-menu-item-text";
       removeDuplicatedItemText.textContent = "remove duplicated";
       
       removeDuplicatedItem.appendChild(removeDuplicatedItemText);

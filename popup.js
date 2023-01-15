@@ -72,6 +72,55 @@ const CreateTabsListCompare = (a, b, type) => {
   }
 }
 
+const showTabMoreVertMenu = (e) => {
+  const id = e.currentTarget.tabId;
+  const showTabMoreVertMenu = document.getElementById("tab-more-vert-menu_" + id);
+  const showTabMoreVertMenuIcon = document.getElementById("show-tab-more-vert-menu-icon_" + id);
+
+  if (!showTabMoreVertMenu.style.cssText.includes("display: block;")) {
+    showTabMoreVertMenu.style.cssText = showTabMoreVertMenu.style.cssText + "display: block;"
+    showTabMoreVertMenuIcon.style.cssText = "color: black;";
+  } else {
+    showTabMoreVertMenu.style.cssText = showTabMoreVertMenu.style.cssText.replace("display: block;", "");
+    showTabMoreVertMenuIcon.style.cssText = "";
+  }
+}
+
+const CreateTabMoreVertMenu = (tabId, sortedTabs) => {
+  const tabMoreVertMenuIcon = document.createElement('div');
+  tabMoreVertMenuIcon.className = "more-vert-button more-vert-all-button left"
+  tabMoreVertMenuIcon.setAttribute("id", "show-tab-more-vert-menu-icon_" + tabId);
+  const closeAllCloseIcon = document.createElement('span');
+  closeAllCloseIcon.textContent = "more_vert";
+  closeAllCloseIcon.className = "material-icons more-vert";
+  tabMoreVertMenuIcon.appendChild(closeAllCloseIcon);  
+  tabMoreVertMenuIcon.addEventListener('click', showTabMoreVertMenu);
+  tabMoreVertMenuIcon.tabId = tabId;
+
+  const tabMoreVertMenu = document.createElement('div');
+  tabMoreVertMenu.className = "popup-menu";
+  tabMoreVertMenu.style.cssText = "top: 25px; right:-15px; width: 160px;"
+  tabMoreVertMenu.setAttribute("id", "tab-more-vert-menu_" + tabId);
+
+  const closeAllToTheBottomItem = document.createElement('div');
+  closeAllToTheBottomItem.className = "popup-menu-item";
+  closeAllToTheBottomItem.tabId = tabId;
+  closeAllToTheBottomItem.sortedTabs = sortedTabs;
+  closeAllToTheBottomItem.callback = () => CreateTabsList(sortBy, false);
+  closeAllToTheBottomItem.addEventListener('click', CloseAllTabsFromId);
+
+  const closeAllToTheBottomItemText = document.createElement('span');
+  closeAllToTheBottomItemText.setAttribute("id", "tab-more-vert-text");
+  closeAllToTheBottomItemText.className = "popup-menu-item-text";
+  closeAllToTheBottomItemText.textContent = "Close all to the bottom";
+  closeAllToTheBottomItem.appendChild(closeAllToTheBottomItemText);
+  tabMoreVertMenu.appendChild(closeAllToTheBottomItem);
+
+  tabMoreVertMenuIcon.appendChild(tabMoreVertMenu);
+
+  return tabMoreVertMenuIcon;
+}
+
 const CreateTabsList = async (sortBy, scrollToTop = true) => {
   const tabsMetadata = await retrievedTabsMetadata();
   let tabs = await chrome.tabs.query({});
@@ -98,16 +147,13 @@ const CreateTabsList = async (sortBy, scrollToTop = true) => {
     }
     tabInfoWrapper.setAttribute("id", "tab_info_wrapper_" + tab.id);
     tabInfoWrapper.setAttribute("tabindex", -1);
-    tabInfoWrapper.addEventListener('click', focusOnTabEvent);
-    tabInfoWrapper.tabId = tab.id;
-    tabInfoWrapper.sortBy = sortBy;
 
     const siteWrapper = document.createElement('div');
     siteWrapper.style.cssText = 'display:flex; width: 5%';
     const site = document.createElement('a');
     site.className = "site-link";
-    site.addEventListener('click', focusOnTabEvent);
-    site.tabId = tab.id;
+    siteWrapper.addEventListener('click', focusOnTabEvent);
+    siteWrapper.tabId = tab.id;
 
     if (tab.favIconUrl) {
       const favIcon = document.createElement('img');
@@ -125,7 +171,8 @@ const CreateTabsList = async (sortBy, scrollToTop = true) => {
     title.style.cssText = 
       'font-size: 12px;font-weight:500;color:#757b86;font-weight: 700;overflow:hidden;white-space:nowrap;text-overflow: ellipsis;cursor:pointer';
     title.textContent = tab.title;
-
+    titleWrapper.addEventListener('click', focusOnTabEvent);
+    titleWrapper.tabId = tab.id;
     titleWrapper.appendChild(title);
 
     const updatedAtElement = document.createElement('span');
@@ -150,6 +197,7 @@ const CreateTabsList = async (sortBy, scrollToTop = true) => {
     tabInfoWrapper.appendChild(siteWrapper);
     tabInfoWrapper.appendChild(titleWrapper);
     tabInfoWrapper.appendChild(updatedAtElementWrapper);
+    tabInfoWrapper.appendChild(CreateTabMoreVertMenu(tab.id, sortedTabs));
 
     const closeTab = document.createElement('div');
     closeTab.className = "close-button"
@@ -160,29 +208,9 @@ const CreateTabsList = async (sortBy, scrollToTop = true) => {
     closeTab.addEventListener('click', onCloseTabEvent);
     closeTab.tabId = tab.id;
     closeTab.callback = () => CreateTabsList(sortBy, false);
-     
-    const closeAllDown = document.createElement('div');
-    closeAllDown.className = "close-button close-all-button left"
-    const closeAllDownIcon = document.createElement('span');
-    closeAllDownIcon.textContent = "arrow_downward";
-    closeAllDownIcon.className = "material-icons close-all-icon"
-    const closeAllCloseIcon = document.createElement('span');
-    closeAllCloseIcon.textContent = "close";
-    closeAllCloseIcon.className = "material-icons close-tab-icon";
-    const closeAllTooltip = document.createElement('div');
-    closeAllTooltip.className = "tooltip"
-    closeAllTooltip.textContent = "Close all to the bottom";
-    closeAllDown.appendChild(closeAllCloseIcon);
-    closeAllDown.appendChild(closeAllDownIcon);
-    closeAllDown.appendChild(closeAllTooltip);
-    closeAllDown.addEventListener('click', CloseAllTabsFromId);
-    closeAllDown.tabId = tab.id;
-    closeAllDown.sortedTabs = sortedTabs;
-    closeAllDown.callback = () => CreateTabsList(sortBy, false);
 
     tabWrapper.appendChild(tabInfoWrapper);
     tabWrapper.appendChild(closeTab);
-    tabWrapper.appendChild(closeAllDown);
     
     wrapper.appendChild(tabWrapper);    
   });
