@@ -83,4 +83,6 @@ function init() {
   });
 }
 
+chrome.runtime.setUninstallURL("https://docs.google.com/forms/d/1hxXhGfBmkKo6du690UpvZJ7LqDOz5xE-yMujOrms6RI")
+
 init();
