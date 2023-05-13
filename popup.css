@@ -83,7 +83,11 @@
 }
 
 .close-button:hover {
-  color:red;
+  color:red !important;
+}
+
+.close-tab-icon:hover {
+  color:red !important;
 }
 
 .more-vert-button {
@@ -96,7 +100,7 @@
 
 .more-vert-button:hover {
   font-weight: 700;
-  color: black;
+  color: black !important;
 }
 
 
@@ -307,7 +311,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  widows: 100%;
 }
 
 #toggle-theme-text {

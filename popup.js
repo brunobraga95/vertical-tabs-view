@@ -22,6 +22,7 @@ export const COLOR_SCHEMES = {
     focusTabColor: "rgba(0, 180, 204, 0.35)",
     themeSectionColor: "#333333",
     titleColor: "#282828", 
+    updateAgoTextColor: "#757b86",
   }
 }
 
@@ -66,7 +67,7 @@ async function loadScheme() {
   Array.from(document.getElementsByClassName("updated-ago-text")).forEach((icon) => {
     icon.style.color = updateAgoTextColor;
   });
-  Array.from(document.getElementsByClassName("more-vert")).forEach((icon) => {
+  Array.from(document.getElementsByClassName("more-vert-button")).forEach((icon) => {
     icon.style.color = updateAgoTextColor;
   });  
 }
@@ -141,17 +142,18 @@ const CreateTabsListCompare = (a, b, type) => {
   }
 }
 
-const showTabMoreVertMenu = (e) => {
+const showTabMoreVertMenu = async (e) => {
   const id = e.currentTarget.tabId;
   const showTabMoreVertMenu = document.getElementById("tab-more-vert-menu_" + id);
   const showTabMoreVertMenuIcon = document.getElementById("show-tab-more-vert-menu-icon_" + id);
 
   if (!showTabMoreVertMenu.style.cssText.includes("display: block;")) {
     showTabMoreVertMenu.style.cssText = showTabMoreVertMenu.style.cssText + "display: block;"
-    showTabMoreVertMenuIcon.style.cssText = "color: black;";
+    showTabMoreVertMenuIcon.style.color = "black";
   } else {
     showTabMoreVertMenu.style.cssText = showTabMoreVertMenu.style.cssText.replace("display: block;", "");
-    showTabMoreVertMenuIcon.style.cssText = "";
+    const theme = (await chrome.storage.sync.get("theme")).theme || "classic_mode";
+    showTabMoreVertMenuIcon.style.color = COLOR_SCHEMES[theme].updateAgoTextColor;
   }
 }
 
