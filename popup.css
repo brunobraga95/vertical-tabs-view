@@ -284,3 +284,74 @@
   align-items:center;
   justify-content: space-around;
 }
+
+.url-title-text {
+  font-size: 12px;
+  font-weight:500;
+  color:#757b86;
+  font-weight: 700;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow: ellipsis;
+  cursor:pointer;
+}
+
+.updated-ago-text {
+  font-size: 12px;
+  font-weight:500;
+  color:#757b86;
+  font-weight: 700;
+}
+
+.header-top-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  widows: 100%;
+}
+
+#toggle-theme-text {
+  color: #000;
+  font-size: 15px;
+  font-weight: 500;
+  position: relative;
+  top: 5px;
+}
+
+.toggle-theme-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#toggle_theme_icon {
+  font-size: 32px;
+  color: #333;
+  cursor: pointer;
+}
+
+#donate-text {
+  color: #000;
+  font-size: 11px;
+  font-weight: 500;
+  position: relative;
+}
+
+.donate-wrapper {
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 50px;
+}
+
+#donate_theme_icon {
+  font-size: 20px;
+  color: #333;
+  cursor: pointer;
+}
+
+#donate_and_theme_wrapper {
+  display: flex;
+  align-items: center;
+}

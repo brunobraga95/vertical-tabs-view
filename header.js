@@ -135,6 +135,17 @@ const getDuplicatedTabs = (tabs) => {
   }
   return duplicatedTabsMap;
 }
+
+const ThemeModelElement = async () => {
+  const toogleThemeIcon = document.getElementById("toggle_theme_icon");
+  toogleThemeIcon.addEventListener('click', async () => {
+    const upToDateMode = (await chrome.storage.sync.get("theme")).theme || "classic_mode";
+    let entry = {}
+    entry["theme"] = upToDateMode === "classic_mode" ? "dark_mode" : "classic_mode";
+    chrome.storage.sync.set(entry, function() {
+    });
+  });
+}
 export const ShowChipsIfNeeded = (tabs) => {
   const duplicatedTabsMap = getDuplicatedTabs(tabs);
   let duplicatesCounter = 0;
@@ -301,5 +312,6 @@ export const CreateHeader =  (tabs, onSortedButtonClicked, onRemoveDuplicates) =
     }
     ShowChipsIfNeeded(tabs);
     MaybeHighlightTabs(DUPLICATED_TABS_MAP);
+    ThemeModelElement();
 }
   

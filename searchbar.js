@@ -1,4 +1,5 @@
 import { focusOnTab } from "./tab_utils.js";
+import { COLOR_SCHEMES } from "./popup.js";
 
 const debounce = (func, wait) => {
     let timeout;
@@ -45,7 +46,7 @@ const onSearchChanged = debounce((e) => {
   filterBasedOnSearchValue(e.target.value.toLowerCase());
 }, 300);
 
-const onKeyDownPressed = (e) => {
+const onKeyDownPressed = async (e) => {
   const isCurrentTabFocused = (tab) => {
     let title = tab.childNodes[0];
 
@@ -55,13 +56,16 @@ const onKeyDownPressed = (e) => {
     return null;
   }
 
-  const maybeFocusOnTab = (tab, currentlyFocused) => {
+  const maybeFocusOnTab = async (tab, currentlyFocused) => {
     let title = tab.childNodes[0];
-
     if(!tab.style.cssText.includes("display: none") 
       && currentlyFocused && !title.classList.contains("focused-tab-info-wrapper")) {
+      const theme = (await chrome.storage.sync.get("theme")).theme || "classic_mode";
       currentlyFocused.classList.remove("focused-tab-info-wrapper");
+      currentlyFocused.style.backgroundColor = COLOR_SCHEMES[theme].tabWrapperColor;      
+      title.style.backgroundColor = COLOR_SCHEMES[theme].focusTabColor;
       title.classList.add("focused-tab-info-wrapper");
+
       title.scrollIntoView({block: "center", behavior: "smooth"});
       return true;
     }
@@ -77,7 +81,7 @@ const onKeyDownPressed = (e) => {
       let tab = tabList[i];
       if (!currentlyFocused)
         currentlyFocused = isCurrentTabFocused(tab);
-      if (maybeFocusOnTab(tab, currentlyFocused))
+      if (await maybeFocusOnTab(tab, currentlyFocused))
         break;
       // loopedCompleted avoid unwanted infinite loop
       if (i === tabList.length - 1 && !loopedCompleted) {
@@ -94,7 +98,7 @@ const onKeyDownPressed = (e) => {
       let tab = tabList[i];
       if (!currentlyFocused)
         currentlyFocused = isCurrentTabFocused(tab);
-      if (maybeFocusOnTab(tab, currentlyFocused)) 
+      if (await maybeFocusOnTab(tab, currentlyFocused)) 
         break;
       // loopedCompleted avoid unwanted infinite loop
       if (i === 0 && !loopedCompleted) {

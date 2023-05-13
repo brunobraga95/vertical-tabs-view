@@ -2,6 +2,75 @@ import { CreateHeader } from "./header.js";
 import { focusOnTab } from "./tab_utils.js";
 import { filterBasedOnSearchValue } from "./searchbar.js";
 
+export const COLOR_SCHEMES = { 
+  dark_mode: { 
+    primaryColor: "#00B4CC",
+    backgroundColor: "#282828", 
+    titleColor: "#ffffff",
+    iconColor: "#ffffff",
+    tabHighlightColor: "#3E54AC",
+    urlTitleColor: "#ffffff",
+    tabWrapperColor: "#404040",
+    updateAgoTextColor: "#ffffff",
+    focusTabColor: "#b3b3b3",
+    themeSectionColor: "#ffffff",
+  },
+  classic_mode: {
+    backgroundColor: "#ffffff",
+    primaryColor: "#00B4CC",
+    tabWrapperColor: "#ffffff",
+    focusTabColor: "rgba(0, 180, 204, 0.35)",
+    themeSectionColor: "#333333",
+    titleColor: "#282828", 
+  }
+}
+
+async function loadScheme() {
+  const theme = (await chrome.storage.sync.get("theme")).theme || "classic_mode";
+  const backgroundColor = COLOR_SCHEMES[theme].backgroundColor;
+  const titleColor = COLOR_SCHEMES[theme]?.titleColor || '';
+  const tabWrapperColor = COLOR_SCHEMES[theme]?.tabWrapperColor || '';
+  const urlTitleColor = COLOR_SCHEMES[theme]?.urlTitleColor || '';
+  const updateAgoTextColor = COLOR_SCHEMES[theme]?.updateAgoTextColor || '';
+  const primaryColor = COLOR_SCHEMES[theme].primaryColor;
+
+  document.getElementById("donate-text").style.color = COLOR_SCHEMES[theme].themeSectionColor;
+  document.getElementById("donate_theme_icon").style.color = COLOR_SCHEMES[theme].themeSectionColor;  
+  document.getElementById("toggle-theme-text").style.color = COLOR_SCHEMES[theme].themeSectionColor;
+  document.getElementById("toggle_theme_icon").style.color = COLOR_SCHEMES[theme].themeSectionColor;
+  document.getElementById("search-bar").style.border = "3px solid " + primaryColor;
+  document.getElementById("search-bar-button").style.border = "1px solid " + primaryColor;  
+  document.getElementById("search-bar-button").style.background = primaryColor;  
+  document.getElementById("body").style.backgroundColor = backgroundColor;  
+  document.getElementById("top-header").style.backgroundColor = backgroundColor;
+
+  const toogleThemeIcon = document.getElementById("toggle_theme_icon");
+  toogleThemeIcon.textContent = theme === "dark_mode" ? "toggle_on" : "toggle_off"; 
+
+  document.getElementById("title").style.color = titleColor;  
+  Array.from(document.getElementsByClassName("sortIcon")).forEach((icon) => {
+    icon.style.color = titleColor;
+  });
+  Array.from(document.getElementsByClassName("header-button")).forEach((icon) => {
+    icon.style.color = titleColor;
+  });
+  Array.from(document.getElementsByClassName("close-tab-icon")).forEach((icon) => {
+    icon.style.color = titleColor;
+  });
+  Array.from(document.getElementsByClassName("tab-info-wrapper")).forEach((icon) => {
+    icon.style.backgroundColor = tabWrapperColor;
+  });
+  Array.from(document.getElementsByClassName("url-title-text")).forEach((icon) => {
+    icon.style.color = urlTitleColor;
+  });
+  Array.from(document.getElementsByClassName("updated-ago-text")).forEach((icon) => {
+    icon.style.color = updateAgoTextColor;
+  });
+  Array.from(document.getElementsByClassName("more-vert")).forEach((icon) => {
+    icon.style.color = updateAgoTextColor;
+  });  
+}
+
 function retrievedTabsMetadata() {
   return new Promise((resolve, reject) => {
     // Asynchronously fetch all data from storage.sync.
@@ -168,15 +237,14 @@ const CreateTabsList = async (sortBy, scrollToTop = true) => {
     const title = document.createElement('a');
     title.setAttribute("id", "tab_" + tab.id);
     title.setAttribute("url", tab.url);
-    title.style.cssText = 
-      'font-size: 12px;font-weight:500;color:#757b86;font-weight: 700;overflow:hidden;white-space:nowrap;text-overflow: ellipsis;cursor:pointer';
+    title.className += "url-title-text";      
     title.textContent = tab.title;
     titleWrapper.addEventListener('click', focusOnTabEvent);
     titleWrapper.tabId = tab.id;
     titleWrapper.appendChild(title);
 
     const updatedAtElement = document.createElement('span');
-    updatedAtElement.style.cssText = 'font-size: 12px;font-weight:500;color:#757b86;font-weight: 700;';
+    updatedAtElement.className += "updated-ago-text";      
     let updatedAgoMilisecondsAgo = Date.now() - tab.updatedAt;
     const updatedAgoSeconds = parseInt(updatedAgoMilisecondsAgo / 1000);
     const updatedAgoMinutes = parseInt(updatedAgoSeconds / 60);
@@ -219,6 +287,7 @@ const CreateTabsList = async (sortBy, scrollToTop = true) => {
   }
   CreateHeader(tabs, (sortBy) => CreateTabsList(sortBy), CloseAllTabsWithIds);
   filterBasedOnSearchValue(document.getElementById("search-bar")?.value || "");
+  loadScheme();
 }
 
 const populateWithTabs = () => {
@@ -234,7 +303,17 @@ const addBodyEvents = () => {
   body.addEventListener('click', onBodyClicked);
 }
 
+document.getElementById("search-bar").focus();
+
 populateWithTabs();
 addBodyEvents();
-document.getElementById("search-bar").focus();
+loadScheme();
+
+chrome.storage.onChanged.addListener((changes, namespace) => {
+  for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
+    if(key === "theme") {
+      loadScheme();
+    }
+  }
+});
 
