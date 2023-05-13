@@ -16,7 +16,7 @@ export const COLOR_SCHEMES = {
     themeSectionColor: "#ffffff",
   },
   classic_mode: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "#eee",
     primaryColor: "#00B4CC",
     tabWrapperColor: "#ffffff",
     focusTabColor: "rgba(0, 180, 204, 0.35)",
