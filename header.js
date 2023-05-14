@@ -180,7 +180,7 @@ export const CreateHeader =  (tabs, onSortedButtonClicked, onRemoveDuplicates) =
 
     if(wrapper.children.length === 0) {
       const header = document.createElement('div');
-      header.style.cssText = "width: calc(95% - 30px); display: flex; justify-content:space-between; padding: 10px 15px";
+      header.className = "header-child";
 
       const leftElementsHeader = document.createElement('div');
       leftElementsHeader.className = "left-elements-wrapper";
@@ -232,7 +232,7 @@ export const CreateHeader =  (tabs, onSortedButtonClicked, onRemoveDuplicates) =
       duplicatedTabsHeaderWrapper.className = "info-chip duplicated-tabs-wrapper";
       const duplicatedTablsHeader = document.createElement('span');
       duplicatedTablsHeader.className = "info-chip-text"
-      duplicatedTablsHeader.textContent = "duplicated tabs";
+      duplicatedTablsHeader.textContent = "duplicated";
       duplicatedTabsHeaderWrapper.appendChild(duplicatedTablsHeader);
       const duplicatedTabsCounter = document.createElement('div');
       duplicatedTabsCounter.className = "chips-left-circle";

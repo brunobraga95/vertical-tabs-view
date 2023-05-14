@@ -16,7 +16,7 @@ export const COLOR_SCHEMES = {
     themeSectionColor: "#ffffff",
   },
   classic_mode: {
-    backgroundColor: "#eee",
+    backgroundColor: "#eff",
     primaryColor: "#00B4CC",
     tabWrapperColor: "#ffffff",
     focusTabColor: "rgba(0, 180, 204, 0.35)",
@@ -35,6 +35,8 @@ async function loadScheme() {
   const updateAgoTextColor = COLOR_SCHEMES[theme]?.updateAgoTextColor || '';
   const primaryColor = COLOR_SCHEMES[theme].primaryColor;
 
+  document.getElementById("suggestions-text").style.color = COLOR_SCHEMES[theme].themeSectionColor;
+  document.getElementById("suggestions_theme_icon").style.color = COLOR_SCHEMES[theme].themeSectionColor;  
   document.getElementById("donate-text").style.color = COLOR_SCHEMES[theme].themeSectionColor;
   document.getElementById("donate_theme_icon").style.color = COLOR_SCHEMES[theme].themeSectionColor;  
   document.getElementById("toggle-theme-text").style.color = COLOR_SCHEMES[theme].themeSectionColor;
@@ -220,7 +222,7 @@ const CreateTabsList = async (sortBy, scrollToTop = true) => {
     tabInfoWrapper.setAttribute("tabindex", -1);
 
     const siteWrapper = document.createElement('div');
-    siteWrapper.style.cssText = 'display:flex; width: 5%';
+    siteWrapper.style.cssText = 'display:flex; width: 10%';
     const site = document.createElement('a');
     site.className = "site-link";
     siteWrapper.addEventListener('click', focusOnTabEvent);
@@ -235,7 +237,7 @@ const CreateTabsList = async (sortBy, scrollToTop = true) => {
     } 
 
     const titleWrapper = document.createElement('div');
-    titleWrapper.style.cssText = 'display:flex; width: 75%';
+    titleWrapper.style.cssText = 'display:flex; width: 70%';
     const title = document.createElement('a');
     title.setAttribute("id", "tab_" + tab.id);
     title.setAttribute("url", tab.url);

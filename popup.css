@@ -1,5 +1,6 @@
 .title {
   margin: 0px;
+  font-size: 16px;
 }
 .default-button {
   background-color:#388e3c;
@@ -113,7 +114,7 @@
   align-items:center;
   display:flex;justify-content: space-between;margin-bottom: 5px;
   background-color: #ffffff;
-  padding: 10px 15px;
+  padding: 8px 15px;
   border-radius: 6px; border: 1px solid #abb0b8;
 }
 
@@ -175,8 +176,8 @@
   margin: 0px 5px;
   padding: 0px 10px 0px 35px;
   background-color: #3dc6d8;
-  width: 120px;
-  height: 30px;
+  width: 80px;
+  height: 28px;
   border-radius: 20px;
   position: relative;
 }
@@ -190,8 +191,8 @@
   justify-content: center;
   left: 0px;
   border-radius: 50%;
-  height: 30px;
-  width: 30px;
+  height: 28px;
+  width: 28px;
 }
 
 .open-tabs-wrapper {
@@ -209,7 +210,7 @@
 }
 
 .chips-left-circle-text {
-  font-size: 14px;
+  font-size: 13px;
   color: white;
   font-weight: 600;
 }
@@ -226,7 +227,6 @@
 }
 
 .chips-header-wrapper {
-  width: 65%;
   display: flex;
 }
 
@@ -328,7 +328,7 @@
 }
 
 #toggle_theme_icon {
-  font-size: 32px;
+  font-size: 30px;
   color: #333;
   cursor: pointer;
 }
@@ -345,11 +345,35 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 50px;
+  text-decoration: none;
+  position: relative;
+  left: 5px;
 }
 
 #donate_theme_icon {
-  font-size: 20px;
+  font-size: 16px;
+  color: #333;
+  cursor: pointer;
+}
+
+#suggestions-text {
+  color: #000;
+  font-size: 11px;
+  font-weight: 500;
+  position: relative;
+}
+
+.suggestions-wrapper {
+  position: relative;
+  text-decoration: none;
+  left: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#suggestions_theme_icon {
+  font-size: 16px;
   color: #333;
   cursor: pointer;
 }
@@ -357,4 +381,13 @@
 #donate_and_theme_wrapper {
   display: flex;
   align-items: center;
+  width: 55%;
+  justify-content: space-between;
+}
+
+.header-child {
+  width: calc(100% - 15px);
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0px;
 }
