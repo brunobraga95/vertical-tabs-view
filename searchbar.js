@@ -60,7 +60,7 @@ const onKeyDownPressed = async (e) => {
     let title = tab.childNodes[0];
     if(!tab.style.cssText.includes("display: none") 
       && currentlyFocused && !title.classList.contains("focused-tab-info-wrapper")) {
-      const theme = (await chrome.storage.sync.get("theme")).theme || "classic_mode";
+      const theme = (await chrome.storage.local.get("theme")).theme || "classic_mode";
       currentlyFocused.classList.remove("focused-tab-info-wrapper");
       currentlyFocused.style.backgroundColor = COLOR_SCHEMES[theme].tabWrapperColor;      
       title.style.backgroundColor = COLOR_SCHEMES[theme].focusTabColor;

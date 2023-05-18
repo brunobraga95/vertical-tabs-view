@@ -139,10 +139,10 @@ const getDuplicatedTabs = (tabs) => {
 const ThemeModelElement = async () => {
   const toogleThemeIcon = document.getElementById("toggle_theme_icon");
   toogleThemeIcon.addEventListener('click', async () => {
-    const upToDateMode = (await chrome.storage.sync.get("theme")).theme || "classic_mode";
+    const upToDateMode = (await chrome.storage.local.get("theme")).theme || "classic_mode";
     let entry = {}
     entry["theme"] = upToDateMode === "classic_mode" ? "dark_mode" : "classic_mode";
-    chrome.storage.sync.set(entry, function() {
+    chrome.storage.local.set(entry, function() {
     });
   });
 }

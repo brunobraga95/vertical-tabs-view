@@ -27,7 +27,7 @@ export const COLOR_SCHEMES = {
 }
 
 async function loadScheme() {
-  const theme = (await chrome.storage.sync.get("theme")).theme || "classic_mode";
+  const theme = (await chrome.storage.local.get("theme")).theme || "classic_mode";
   const backgroundColor = COLOR_SCHEMES[theme].backgroundColor;
   const titleColor = COLOR_SCHEMES[theme]?.titleColor || '';
   const tabWrapperColor = COLOR_SCHEMES[theme]?.tabWrapperColor || '';
@@ -77,7 +77,7 @@ async function loadScheme() {
 function retrievedTabsMetadata() {
   return new Promise((resolve, reject) => {
     // Asynchronously fetch all data from storage.sync.
-    chrome.storage.sync.get(null, (items) => {
+    chrome.storage.local.get(null, (items) => {
       // Pass any observed errors down the promise chain.
       if (chrome.runtime.lastError) {
         return reject(chrome.runtime.lastError);
@@ -119,7 +119,7 @@ const CloseAllTabsFromId = (e) => {
 
 const CloseAllTabsWithIds = (ids, sortBy, scrollToTop = true) => {
   chrome.tabs.remove(ids, () => {
-    chrome.storage.sync.remove(ids.map((id) => Number.isInteger(id) ? id.toString() : id), () => CreateTabsList(sortBy, scrollToTop));
+    chrome.storage.local.remove(ids.map((id) => Number.isInteger(id) ? id.toString() : id), () => CreateTabsList(sortBy, scrollToTop));
   });
 }
 
@@ -154,7 +154,7 @@ const showTabMoreVertMenu = async (e) => {
     showTabMoreVertMenuIcon.style.color = "black";
   } else {
     showTabMoreVertMenu.style.cssText = showTabMoreVertMenu.style.cssText.replace("display: block;", "");
-    const theme = (await chrome.storage.sync.get("theme")).theme || "classic_mode";
+    const theme = (await chrome.storage.local.get("theme")).theme || "classic_mode";
     showTabMoreVertMenuIcon.style.color = COLOR_SCHEMES[theme].updateAgoTextColor;
   }
 }
@@ -198,13 +198,18 @@ const CreateTabsList = async (sortBy, scrollToTop = true) => {
   const tabsMetadata = await retrievedTabsMetadata();
   let tabs = await chrome.tabs.query({});
 
-  const sortedTabs = tabs.map(tab => {
+  let sortedTabs = tabs.map(tab => {
     let site = (new URL(tab.url));
     site = site.hostname.replace("www.", "");
     return { ...tab, site, updatedAt: tabsMetadata[tab.id] ? tabsMetadata[tab.id].updatedAt : Date.now() }
   });
 
   sortedTabs.sort((a, b) => CreateTabsListCompare(a, b, sortBy));
+  if(sortBy === "ACTIVE_ASC" && sortedTabs.length > 0) {
+    sortedTabs.push(sortedTabs[0]);
+    sortedTabs.shift();
+  }
+
   let wrapper = document.getElementById("tabs-list");
   wrapper.replaceChildren();
   sortedTabs.forEach((tab, index) => {

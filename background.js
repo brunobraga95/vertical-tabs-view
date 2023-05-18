@@ -39,7 +39,28 @@ function init() {
       updateBadgeText();
     }
   });
- 
+  let tabsToRemove = [];
+  let tabsToAddMetadata = {};
+
+  chrome.storage.local.get(null, (storedTabs) => {
+    const currentTabIds = tabs.map(tab => tab.id.toString());
+    let storedTabKeys = [];
+    Object.keys(storedTabs).forEach(storedTabKey => {
+      if(storedTabKey !== "theme" && !currentTabIds.includes(storedTabKey)) {
+        tabsToRemove.push(storedTabKey);
+      } else if(storedTabKey !== "theme") {
+        storedTabKeys.push(storedTabKey);
+      }
+    });
+    for(const id of currentTabIds) {
+      if(!storedTabKeys.includes(id) || !storedTabs[id].updatedAt) {
+        tabsToAddMetadata[id] = {updatedAt: Date.now() };
+      }
+    }
+    chrome.storage.local.remove(tabsToRemove, () => {});
+    chrome.storage.local.set(tabsToAddMetadata, function() {});
+  });
+
   chrome.tabs.onCreated.addListener((tab) => {
     if(!tab.id)
       return;
@@ -48,7 +69,7 @@ function init() {
     entry[tab.id] = {
       updatedAt: Date.now(),
     }
-    chrome.storage.sync.set(entry, function() {});
+    chrome.storage.local.set(entry, function() {});
     updateBadgeText();
   });
   
@@ -59,7 +80,7 @@ function init() {
     entry[tab.tabId] = {
       updatedAt: Date.now(),
     }
-    chrome.storage.sync.set(entry, function() {});
+    chrome.storage.local.set(entry, function() {});
   });
 
   chrome.tabs.onRemoved.addListener((tab) => {
@@ -68,7 +89,7 @@ function init() {
       tabs.splice(idx, 1);
       updateBadgeText();
     }
-    chrome.storage.sync.remove(tab.toString(), () => {});
+    chrome.storage.local.remove(tab.toString(), () => {});
   });
 
   chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
