@@ -207,8 +207,9 @@ const CreateTabsList = async (sortBy, scrollToTop = true) => {
 
   sortedTabs.sort((a, b) => CreateTabsListCompare(a, b, sortBy));
   let wrapper = document.getElementById("tabs-list");
+  let firstTab = null;
   wrapper.replaceChildren();
-  sortedTabs.forEach((tab, index) => {
+  sortedTabs.forEach(async (tab, index) => {
     const tabWrapper = document.createElement('div');
     tabWrapper.className = "tab-wrapper";
     tabWrapper.setAttribute("id", "tab_wrapper_" + tab.id);
@@ -216,15 +217,15 @@ const CreateTabsList = async (sortBy, scrollToTop = true) => {
 
     const tabInfoWrapper = document.createElement('div');
     tabInfoWrapper.className = "tab-info-wrapper";
-    if (index == 0) {
-      tabInfoWrapper.className += " focused-tab-info-wrapper";
-    }
     tabInfoWrapper.setAttribute("id", "tab_info_wrapper_" + tab.id);
     tabInfoWrapper.setAttribute("tabindex", -1);
     tabInfoWrapper.addEventListener('click', focusOnTabEvent);
     tabInfoWrapper.tabId = tab.id;
 
-    
+    if(index === 0) {
+      firstTab = tabInfoWrapper;
+    }
+  
     const siteWrapper = document.createElement('div');
     siteWrapper.style.cssText = 'display:flex; width: 10%';
     const site = document.createElement('a');
@@ -291,6 +292,11 @@ const CreateTabsList = async (sortBy, scrollToTop = true) => {
   CreateHeader(tabs, (sortBy) => CreateTabsList(sortBy), CloseAllTabsWithIds);
   filterBasedOnSearchValue(document.getElementById("search-bar")?.value || "");
   loadScheme();
+  if (firstTab) {
+    firstTab.className += " focused-tab-info-wrapper";
+    const theme = (await chrome.storage.local.get("theme")).theme || "classic_mode";
+    firstTab.style.backgroundColor = COLOR_SCHEMES[theme].focusTabColor;
+  }  
 }
 
 const populateWithTabs = () => {

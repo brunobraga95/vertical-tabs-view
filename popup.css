@@ -115,16 +115,22 @@
   display:flex;justify-content: space-between;margin-bottom: 5px;
   background-color: #ffffff;
   padding: 8px 15px;
-  border-radius: 6px; border: 1px solid #abb0b8;
+  border-radius: 6px; 
+  border: 1px solid #abb0b8;
 }
 
-.focused-tab-info-wrapper {
-  background-color:rgba(0, 180, 204, 0.35);
+.tab-info-wrapper:hover {
+  border: 1px solid rgb(0, 180, 204);
+  box-shadow: 0 0 0 2px rgb(0, 180, 204) inset;
+}
+
+.focused-tab-info-wrapper-no-hover .tab-info-wrapper{
+    border: 1px solid #abb0b8 !important;
+    box-shadow: 0 0 0 0px rgb(0, 180, 204) inset !important;
 }
 
 .tab-info-wrapper:hover {
   cursor: pointer;
-  text-decoration: underline;
 }
 
 .close-all-icon {
