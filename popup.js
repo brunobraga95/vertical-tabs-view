@@ -145,6 +145,7 @@ const CreateTabsListCompare = (a, b, type) => {
 }
 
 const showTabMoreVertMenu = async (e) => {
+  e.stopPropagation();
   const id = e.currentTarget.tabId;
   const showTabMoreVertMenu = document.getElementById("tab-more-vert-menu_" + id);
   const showTabMoreVertMenuIcon = document.getElementById("show-tab-more-vert-menu-icon_" + id);
@@ -205,11 +206,6 @@ const CreateTabsList = async (sortBy, scrollToTop = true) => {
   });
 
   sortedTabs.sort((a, b) => CreateTabsListCompare(a, b, sortBy));
-  if(sortBy === "ACTIVE_ASC" && sortedTabs.length > 0) {
-    sortedTabs.push(sortedTabs[0]);
-    sortedTabs.shift();
-  }
-
   let wrapper = document.getElementById("tabs-list");
   wrapper.replaceChildren();
   sortedTabs.forEach((tab, index) => {
@@ -225,14 +221,14 @@ const CreateTabsList = async (sortBy, scrollToTop = true) => {
     }
     tabInfoWrapper.setAttribute("id", "tab_info_wrapper_" + tab.id);
     tabInfoWrapper.setAttribute("tabindex", -1);
+    tabInfoWrapper.addEventListener('click', focusOnTabEvent);
+    tabInfoWrapper.tabId = tab.id;
 
+    
     const siteWrapper = document.createElement('div');
     siteWrapper.style.cssText = 'display:flex; width: 10%';
     const site = document.createElement('a');
     site.className = "site-link";
-    siteWrapper.addEventListener('click', focusOnTabEvent);
-    siteWrapper.tabId = tab.id;
-
     if (tab.favIconUrl) {
       const favIcon = document.createElement('img');
       favIcon.src = tab.favIconUrl;
@@ -248,8 +244,6 @@ const CreateTabsList = async (sortBy, scrollToTop = true) => {
     title.setAttribute("url", tab.url);
     title.className += "url-title-text";      
     title.textContent = tab.title;
-    titleWrapper.addEventListener('click', focusOnTabEvent);
-    titleWrapper.tabId = tab.id;
     titleWrapper.appendChild(title);
 
     const updatedAtElement = document.createElement('span');
