@@ -106,4 +106,8 @@ function init() {
 
 chrome.runtime.setUninstallURL("https://docs.google.com/forms/d/1hxXhGfBmkKo6du690UpvZJ7LqDOz5xE-yMujOrms6RI")
 
+chrome.action.onClicked.addListener((tab) => {
+  chrome.sidePanel.open({ windowId: tab.windowId });
+});
+
 init();

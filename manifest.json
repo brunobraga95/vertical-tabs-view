@@ -3,13 +3,15 @@
   "version": "0.0.6.2",
   "manifest_version": 3,
   "action": {
-    "default_title": "Vertical Tabs View",
-    "default_popup": "popup.html"
+    "default_title": "Vertical Tabs View"
   },
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["storage","tabs"],
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "permissions": ["storage","tabs", "sidePanel"],
   "icons": { 
     "16": "verticaltabsview16.png",
     "48": "verticaltabsview48.png",
