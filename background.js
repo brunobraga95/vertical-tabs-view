@@ -1,6 +1,10 @@
 let badgeColor = [0, 255, 255, 255];
 let tabs = [];
 
+chrome.sidePanel
+  .setPanelBehavior({ openPanelOnActionClick: true })
+  .catch((error) => console.error(error));
+
 function indexOfTab(tabId) {
   for (let i = 0; i < tabs.length; i++) {
     if (tabId === tabs[i].id) {
@@ -105,9 +109,5 @@ function init() {
 }
 
 chrome.runtime.setUninstallURL("https://docs.google.com/forms/d/1hxXhGfBmkKo6du690UpvZJ7LqDOz5xE-yMujOrms6RI")
-
-chrome.action.onClicked.addListener((tab) => {
-  chrome.sidePanel.open({ windowId: tab.windowId });
-});
 
 init();
