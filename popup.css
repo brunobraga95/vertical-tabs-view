@@ -117,6 +117,7 @@
   padding: 8px 15px;
   border-radius: 6px; 
   border: 1px solid #abb0b8;
+  position: relative;
 }
 
 .tab-info-wrapper:hover {
@@ -396,4 +397,19 @@
   display: flex;
   justify-content: space-between;
   padding: 10px 0px;
+}
+
+.horizontal-dots-wrapper {
+  position: absolute;
+  height: 10px;
+  top: calc(50% - 9px);
+  left: -20px;
+}
+
+.vertical-dots-wrapper {
+  position: absolute;
+  writing-mode: vertical-lr;
+  top: calc(100% + 5px);
+  left: 20px;
+  overflow: hidden;
 }

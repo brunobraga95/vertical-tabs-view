@@ -1,11 +1,11 @@
 import { focusOnTab } from "./tab_utils.js";
+import { getRenderedRows, getCurrentTheme, removeFocusClass, containsFocusClass } from "./utils.js";
 import { COLOR_SCHEMES } from "./popup.js";
 
 let timeout = null;
 
 const debounce = (func, wait) => {
     let timeout;
-  
     return function executedFunction(...args) {
       const later = () => {
         clearTimeout(timeout);
@@ -19,35 +19,32 @@ const debounce = (func, wait) => {
 
 export const filterBasedOnSearchValue = async (text) => {
   let value = text.toLowerCase();
-  let urlList = document.getElementsByClassName("tab-wrapper");
+  let renderedRow = getRenderedRows();
+  const theme = await getCurrentTheme();
   let firstVisibleFound = false;
-  const theme = (await chrome.storage.local.get("theme")).theme || "classic_mode";
-  for(let i = 0; i < urlList.length; i++) {
-    let url = urlList[i];
-    let tabInfo = url.childNodes[0];
-    let urlValue = url.childNodes[0].childNodes[1].childNodes[0].attributes[1].textContent || "";
-    let titleValue = url.childNodes[0].childNodes[1].childNodes[0].innerText || "";
+
+  for(let i = 0; i < renderedRow.length; i++) {
+    let row = renderedRow[i];
+    let tabInfo = row.childNodes[0];
+    let urlValue = row.childNodes[0].childNodes[1].childNodes[0].attributes[1].textContent || "";
+    let titleValue = row.childNodes[0].childNodes[1].childNodes[0].innerText || "";
     urlValue = urlValue.toLowerCase();
     titleValue = titleValue.toLowerCase();
     if(value != "" && !urlValue.includes(value) && !titleValue.includes(value)) {
-      url.style.cssText = url.style.cssText + "display:none !important";
-      if (tabInfo.classList.contains("focused-tab-info-wrapper")) {
-        tabInfo.classList.remove("focused-tab-info-wrapper");
-      }
+      row.style.cssText = row.style.cssText + "display:none !important";
+      removeFocusClass(tabInfo);
       tabInfo.style.backgroundColor = COLOR_SCHEMES[theme].tabWrapperColor;  
-      tabInfo.classList.remove("focused-tab-info-wrapper");
+      removeFocusClass(tabInfo);
     } else {
-      url.style.cssText = url.style.cssText.replace("display: none !important", "");
+      row.style.cssText = row.style.cssText.replace("display: none !important", "");
       if (!firstVisibleFound) {
         tabInfo.classList.add("focused-tab-info-wrapper");
         tabInfo.style.backgroundColor = COLOR_SCHEMES[theme].focusTabColor;
         firstVisibleFound = true;
       } else {
-        if (tabInfo.classList.contains("focused-tab-info-wrapper")) {
-          tabInfo.classList.remove("focused-tab-info-wrapper");
-        }
+        removeFocusClass(tabInfo);
         tabInfo.style.backgroundColor = COLOR_SCHEMES[theme].tabWrapperColor;  
-        tabInfo.classList.remove("focused-tab-info-wrapper");
+        removeFocusClass(tabInfo);
       }
     }
   }
@@ -55,12 +52,12 @@ export const filterBasedOnSearchValue = async (text) => {
 const onSearchChanged = debounce((e) => {
   filterBasedOnSearchValue(e.target.value.toLowerCase());
 }, 300);
-//  
+
 const onKeyDownPressed = async (e) => {
   const isCurrentTabFocused = (tab) => {
     let title = tab.childNodes[0];
 
-    if (title.classList.contains("focused-tab-info-wrapper")) {
+    if (containsFocusClass(title)) {
       return title;
     }
     return null;
@@ -78,7 +75,7 @@ const onKeyDownPressed = async (e) => {
     temporarilyRemoveHover();
     let title = tab.childNodes[0];
     if(!tab.style.cssText.includes("display: none") 
-      && currentlyFocused && !title.classList.contains("focused-tab-info-wrapper")) {
+      && currentlyFocused && !containsFocusClass(title)) {
       const theme = (await chrome.storage.local.get("theme")).theme || "classic_mode";
       currentlyFocused.classList.remove("focused-tab-info-wrapper");
       currentlyFocused.style.backgroundColor = COLOR_SCHEMES[theme].tabWrapperColor;      
@@ -94,7 +91,7 @@ const onKeyDownPressed = async (e) => {
   let loopedCompleted = false;
   if (e.code === "ArrowDown" || (e.code === "Tab" && !e.shiftKey)) {
     let currentlyFocused = null;
-    let tabList = document.getElementsByClassName("tab-wrapper");
+    let tabList = getRenderedRows();
   
     for(let i = 0; i < tabList.length; i++) {
       let tab = tabList[i];
@@ -112,7 +109,7 @@ const onKeyDownPressed = async (e) => {
 
   if(e.code === "ArrowUp" || (e.code === "Tab" && e.shiftKey)) {
     let currentlyFocused = null;
-    let tabList = document.getElementsByClassName("tab-wrapper");
+    let tabList = getRenderedRows();
     for(let i = tabList.length - 1; i >= 0; i--) {
       let tab = tabList[i];
       if (!currentlyFocused)
@@ -130,12 +127,12 @@ const onKeyDownPressed = async (e) => {
 
 const focusOnTabKeyPress = (e) => {
   if(e.code === "Enter") {
-    let urlList = document.getElementsByClassName("tab-wrapper");
-    for(let i = urlList.length - 1; i >= 0; i--) {
-      let url = urlList[i];
-      let title = url.childNodes[0];
-      if(title.classList.contains("focused-tab-info-wrapper")) {
-        const id = parseInt(url.getAttribute("id").split("tab_wrapper_")[1]);
+    let renderedRow = getRenderedRows();
+    for(let i = renderedRow.length - 1; i >= 0; i--) {
+      let row = renderedRow[i];
+      let title = row.childNodes[0];
+      if(containsFocusClass(title)) {
+        const id = parseInt(row.getAttribute("id").split("tab_wrapper_")[1]);
         focusOnTab(id);
       }
 

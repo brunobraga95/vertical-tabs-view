@@ -1,4 +1,6 @@
 
+import { getTabById} from "./utils.js";
+
 let CURRENT_SORT_TYPE = "ACTIVE_ASC";
 let DUPLICATED_TABS_MAP = {};
 
@@ -66,7 +68,7 @@ const UnhighLightDuplicatedTabs = (duplicatedTabsMap) => {
   Object.keys(duplicatedTabsMap).forEach((url) => {
     if(duplicatedTabsMap[url].counter > 1) {
       duplicatedTabsMap[url].tabs.forEach(tab => {
-        const tabInfoWrapper = document.getElementById("tab_info_wrapper_" + tab.id);
+        const tabInfoWrapper = getTabById(tab.id);
         tabInfoWrapper.style.cssText = tabInfoWrapper.style.cssText.replace("border: 3px solid rgb(0, 180, 204);", "");
       })
     }
@@ -83,7 +85,7 @@ const HighLightDuplicatedTabs = (duplicatedTabsMap) => {
   Object.keys(duplicatedTabsMap).forEach((url) => {
     if(duplicatedTabsMap[url].counter > 1) {
       duplicatedTabsMap[url].tabs.forEach(tab => {
-        const tabInfoWrapper = document.getElementById("tab_info_wrapper_" + tab.id);
+        const tabInfoWrapper = getTabById(tab.id);
         tabInfoWrapper.style.cssText += "border: 3px solid rgb(0, 180, 204);";
       })
     }
@@ -174,7 +176,7 @@ export const ShowChipsIfNeeded = (tabs) => {
   }
 }
 
-export const CreateHeader =  (tabs, onSortedButtonClicked, onRemoveDuplicates) => {
+export const CreateHeader = (tabs, onSortedButtonClicked, onRemoveDuplicates) => {
     let wrapper = document.getElementById("header");
     DUPLICATED_TABS_MAP = getDuplicatedTabs(tabs);
 
