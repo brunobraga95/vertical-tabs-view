@@ -84,7 +84,7 @@ function init() {
     entry[tab.tabId] = {
       updatedAt: Date.now(),
     }
-    chrome.storage.local.set(entry, function() {});
+    chrome.storage.local.set(entry, async function() {});
   });
 
   chrome.tabs.onRemoved.addListener((tab) => {

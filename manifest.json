@@ -1,6 +1,6 @@
 {
   "name": "Vertical Tabs Side Panel",
-  "version": "0.0.7.1",
+  "version": "0.0.7.2",
   "manifest_version": 3,
   "action": {
     "default_title": "Vertical Tabs Side Panel"

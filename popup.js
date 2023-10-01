@@ -2,6 +2,8 @@ import { CreateHeader } from "./header.js";
 import { focusOnTab } from "./tab_utils.js";
 import { filterBasedOnSearchValue } from "./searchbar.js";
 
+let CLEAN_TABS_TIMEOUT;
+
 export const COLOR_SCHEMES = { 
   dark_mode: { 
     primaryColor: "#00B4CC",
@@ -92,18 +94,16 @@ const focusOnTabEvent = (e) => {
 }
 
 const onCloseTabEvent = (e) => {
-  onCloseTab(e.currentTarget.tabId, e.currentTarget.callback);
+  onCloseTab(e.currentTarget.tabId);
 }
 
 const onCloseTab = (id, callback) => {
-  chrome.tabs.remove(id, callback);
+  chrome.tabs.remove(id, () => {});
 }
 
 const CloseAllTabsFromId = (e) => {
   const id = e.currentTarget.tabId;
   const tabs = e.currentTarget.sortedTabs;
-  // Fix sortBy issue.
-  const sortBy = e.currentTarget.sortBy;
 
   let found = false;
   let ids = []
@@ -114,12 +114,16 @@ const CloseAllTabsFromId = (e) => {
       ids.push(tabs[i].id);
     }
   }
-  CloseAllTabsWithIds(ids, sortBy, false);
+  CloseAllTabsWithIds(ids);
 }
 
-const CloseAllTabsWithIds = (ids, sortBy, scrollToTop = true) => {
+const CloseAllTabsWithIds = (ids) => {
   chrome.tabs.remove(ids, () => {
-    chrome.storage.local.remove(ids.map((id) => Number.isInteger(id) ? id.toString() : id), () => CreateTabsList(sortBy, scrollToTop));
+    chrome.storage.local.remove(ids.map((id) => Number.isInteger(id) ? id.toString() : id), () => {
+      chrome.storage.local.get("lastCreateTabsListContext", (context) => {
+        chrome.storage.local.set({ lastCreateTabsListContext: { ...context?.lastCreateTabsListContext, scrollToTop: false } }, function() {});
+      });
+    });
   });
 }
 
@@ -180,7 +184,6 @@ const CreateTabMoreVertMenu = (tabId, sortedTabs) => {
   closeAllToTheBottomItem.className = "popup-menu-item";
   closeAllToTheBottomItem.tabId = tabId;
   closeAllToTheBottomItem.sortedTabs = sortedTabs;
-  closeAllToTheBottomItem.callback = () => CreateTabsList(sortBy, false);
   closeAllToTheBottomItem.addEventListener('click', CloseAllTabsFromId);
 
   const closeAllToTheBottomItemText = document.createElement('span');
@@ -196,6 +199,7 @@ const CreateTabMoreVertMenu = (tabId, sortedTabs) => {
 }
 
 const CreateTabsList = async (sortBy, scrollToTop = true) => {
+  chrome.storage.local.set({ lastCreateTabsListContext: { sortBy, scrollToTop } }, function() {});
   const tabsMetadata = await retrievedTabsMetadata();
   let tabs = await chrome.tabs.query({});
 
@@ -208,11 +212,15 @@ const CreateTabsList = async (sortBy, scrollToTop = true) => {
   sortedTabs.sort((a, b) => CreateTabsListCompare(a, b, sortBy));
   let wrapper = document.getElementById("tabs-list");
   let firstTab = null;
-  wrapper.replaceChildren();
+  
+  for (let i = 0; i < wrapper.children.length; i++) {
+    wrapper.children[i].setAttribute("dirty", true);
+  }
+
   sortedTabs.forEach(async (tab, index) => {
     const tabWrapper = document.createElement('div');
     tabWrapper.className = "tab-wrapper";
-    tabWrapper.setAttribute("id", "tab_wrapper_" + tab.id);
+    tabWrapper.setAttribute("id", "tab_wrapper_temp_" + tab.id);
     tabWrapper.style.cssText = "display: flex; align-items:center; justify-content: space-around;";
 
     const tabInfoWrapper = document.createElement('div');
@@ -279,24 +287,41 @@ const CreateTabsList = async (sortBy, scrollToTop = true) => {
     closeTab.appendChild(closeTabIcon);
     closeTab.addEventListener('click', onCloseTabEvent);
     closeTab.tabId = tab.id;
-    closeTab.callback = () => CreateTabsList(sortBy, false);
 
     tabWrapper.appendChild(tabInfoWrapper);
     tabWrapper.appendChild(closeTab);
-    
+
+    tabWrapper.style.cssText += "visibility: hidden";
     wrapper.appendChild(tabWrapper);    
   });
-  if(scrollToTop && document.getElementsByClassName("tab-wrapper")?.length > 0) {
-    document.getElementsByClassName("tab-wrapper")[0].childNodes[0].scrollIntoView({block: "center", behavior: "instant"});
-  }
-  CreateHeader(tabs, (sortBy) => CreateTabsList(sortBy), CloseAllTabsWithIds);
-  filterBasedOnSearchValue(document.getElementById("search-bar")?.value || "");
-  loadScheme();
-  if (firstTab) {
-    firstTab.className += " focused-tab-info-wrapper";
-    const theme = (await chrome.storage.local.get("theme")).theme || "classic_mode";
-    firstTab.style.backgroundColor = COLOR_SCHEMES[theme].focusTabColor;
-  }  
+
+  // clearTimeout(CLEAN_TABS_TIMEOUT);
+  CLEAN_TABS_TIMEOUT = setTimeout(async () => {
+    let children = wrapper.children;
+    for (let i = 0; i < children.length; i++) {
+      let child = children[i];
+      if(!child.style.cssText.includes("visibility: hidden") && child.getAttribute("dirty")) {
+        wrapper.removeChild(child);
+        i--;
+      } else {
+        child.style.cssText = child.style.cssText.replace("visibility: hidden", "");
+        child.setAttribute("id", child.getAttribute("id").replace("_temp_", "_"));
+      }
+    }
+    if(scrollToTop && document.getElementsByClassName("tab-wrapper")?.length > 0) {
+      document.getElementsByClassName("tab-wrapper")[0].childNodes[0].scrollIntoView({block: "center", behavior: "instant"});
+    }
+    CreateHeader(tabs, (sortBy) => CreateTabsList(sortBy), CloseAllTabsWithIds);
+    filterBasedOnSearchValue(document.getElementById("search-bar")?.value || "");
+    loadScheme();
+    if (firstTab) {
+      firstTab.className += " focused-tab-info-wrapper";
+      const theme = (await chrome.storage.local.get("theme")).theme || "classic_mode";
+      firstTab.style.backgroundColor = COLOR_SCHEMES[theme].focusTabColor;
+    }
+    document.getElementById("search-bar").focus();
+  }, 1000);
+
 }
 
 const populateWithTabs = () => {
@@ -323,6 +348,11 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
     if(key === "theme") {
       loadScheme();
     }
+
+    if(!isNaN(key)) {
+      chrome.storage.local.get("lastCreateTabsListContext", (context) => {
+        CreateTabsList(context?.lastCreateTabsListContext?.sortBy || "ACTIVE_ASC", context?.lastCreateTabsListContext?.scrollToTop);
+      });
+    }
   }
 });
-

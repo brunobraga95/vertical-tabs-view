@@ -93,17 +93,23 @@ const onKeyDownPressed = async (e) => {
 
   let loopedCompleted = false;
   if (e.code === "ArrowDown" || (e.code === "Tab" && !e.shiftKey)) {
+    console.log("here");
     let currentlyFocused = null;
     let tabList = document.getElementsByClassName("tab-wrapper");
-  
+    console.log("here");
+
     for(let i = 0; i < tabList.length; i++) {
       let tab = tabList[i];
+      console.log("here");
+
       if (!currentlyFocused)
         currentlyFocused = isCurrentTabFocused(tab);
       if (await maybeFocusOnTab(tab, currentlyFocused))
         break;
       // loopedCompleted avoid unwanted infinite loop
       if (i === tabList.length - 1 && !loopedCompleted) {
+        console.log("here");
+
         loopedCompleted = true;
         i = -1;
       }
