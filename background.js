@@ -66,7 +66,7 @@ function init() {
   });
 
   chrome.tabs.onCreated.addListener((tab) => {
-    if(!tab.id)
+    if(!tab.id || tab.status === "loading")
       return;
     let entry = {}
     tabs.push(tab);
@@ -97,8 +97,17 @@ function init() {
   });
 
   chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    // If one of these info exists is becase they are new updates. We are not interested in them, 
+    // I want to wait until it becomes complete.
+    if (changeInfo.status === "loading" || changeInfo.title || changeInfo.title || changeInfo.favIconUrl)
+      return;
     tabs[indexOfTab(tabId)] = tab;
     updateBadgeText();
+    let entry = {}
+    entry[tabId] = {
+      updatedAt: Date.now(),
+    }
+    chrome.storage.local.set(entry, async function() {});
   });
 
   chrome.tabs.onReplaced.addListener(function(addedTabId, removedTabId) {

@@ -1,23 +1,20 @@
-import { focusOnTab } from "./tab_utils.js";
-import { COLOR_SCHEMES } from "./popup.js";
+import { focusOnTab } from "./tab_actions.js";
+import { COLOR_SCHEMES } from "./colors.js";
 
 let timeout = null;
-
 const debounce = (func, wait) => {
     let timeout;
-  
     return function executedFunction(...args) {
       const later = () => {
         clearTimeout(timeout);
         func(...args);
       };
-  
       clearTimeout(timeout);
       timeout = setTimeout(later, wait);
     };
   };
 
-export const filterBasedOnSearchValue = async (text) => {
+export const FilterBasedOnSearchValue = async (text) => {
   let value = text.toLowerCase();
   let urlList = document.getElementsByClassName("tab-wrapper");
   let firstVisibleFound = false;
@@ -53,17 +50,28 @@ export const filterBasedOnSearchValue = async (text) => {
   }
 }
 const onSearchChanged = debounce((e) => {
-  filterBasedOnSearchValue(e.target.value.toLowerCase());
+  FilterBasedOnSearchValue(e.target.value.toLowerCase());
 }, 300);
 //  
 const onKeyDownPressed = async (e) => {
   const isCurrentTabFocused = (tab) => {
     let title = tab.childNodes[0];
-
     if (title.classList.contains("focused-tab-info-wrapper")) {
       return title;
     }
     return null;
+  }
+
+  const removeFocusFromAllTabsButOne = async (tabsList, safeTabIndex) => {
+    const theme = (await chrome.storage.local.get("theme")).theme || "classic_mode";
+    for(let i = 0; i < tabsList.length; i++) {
+      if(i !== safeTabIndex) {
+        const tab = tabsList[i];
+        let title = tab.childNodes[0];
+        title.classList.remove("focused-tab-info-wrapper");
+        title.style.backgroundColor = COLOR_SCHEMES[theme].tabWrapperColor; 
+      }
+    }
   }
 
   const temporarilyRemoveHover = () => {
@@ -84,7 +92,6 @@ const onKeyDownPressed = async (e) => {
       currentlyFocused.style.backgroundColor = COLOR_SCHEMES[theme].tabWrapperColor;      
       title.style.backgroundColor = COLOR_SCHEMES[theme].focusTabColor;
       title.classList.add("focused-tab-info-wrapper");
-
       title.scrollIntoView({block: "center", behavior: "smooth"});
       return true;
     }
@@ -93,23 +100,20 @@ const onKeyDownPressed = async (e) => {
 
   let loopedCompleted = false;
   if (e.code === "ArrowDown" || (e.code === "Tab" && !e.shiftKey)) {
-    console.log("here");
     let currentlyFocused = null;
+    let focusedOnTab = false;
     let tabList = document.getElementsByClassName("tab-wrapper");
-    console.log("here");
-
     for(let i = 0; i < tabList.length; i++) {
       let tab = tabList[i];
-      console.log("here");
-
-      if (!currentlyFocused)
+      if (!currentlyFocused) {
         currentlyFocused = isCurrentTabFocused(tab);
-      if (await maybeFocusOnTab(tab, currentlyFocused))
+      }
+      if (!focusedOnTab && await maybeFocusOnTab(tab, currentlyFocused)) {
+        removeFocusFromAllTabsButOne(tabList, i);
         break;
+      }
       // loopedCompleted avoid unwanted infinite loop
       if (i === tabList.length - 1 && !loopedCompleted) {
-        console.log("here");
-
         loopedCompleted = true;
         i = -1;
       }
@@ -121,10 +125,13 @@ const onKeyDownPressed = async (e) => {
     let tabList = document.getElementsByClassName("tab-wrapper");
     for(let i = tabList.length - 1; i >= 0; i--) {
       let tab = tabList[i];
-      if (!currentlyFocused)
+      if (!currentlyFocused) {
         currentlyFocused = isCurrentTabFocused(tab);
-      if (await maybeFocusOnTab(tab, currentlyFocused)) 
+      }
+      if (await maybeFocusOnTab(tab, currentlyFocused)) {
+        removeFocusFromAllTabsButOne(tabList, i);
         break;
+      }
       // loopedCompleted avoid unwanted infinite loop
       if (i === 0 && !loopedCompleted) {
         loopedCompleted = true;
@@ -144,7 +151,6 @@ const focusOnTabKeyPress = (e) => {
         const id = parseInt(url.getAttribute("id").split("tab_wrapper_")[1]);
         focusOnTab(id);
       }
-
     }
   }
 }

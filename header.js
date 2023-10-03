@@ -174,17 +174,15 @@ export const ShowChipsIfNeeded = (tabs) => {
   }
 }
 
-export const CreateHeader =  (tabs, onSortedButtonClicked, onRemoveDuplicates) => {
+export const CreateHeader = (tabs, onSortedButtonClicked, onRemoveDuplicates) => {
     let wrapper = document.getElementById("header");
     DUPLICATED_TABS_MAP = getDuplicatedTabs(tabs);
 
     if(wrapper.children.length === 0) {
       const header = document.createElement('div');
       header.className = "header-child";
-
       const leftElementsHeader = document.createElement('div');
       leftElementsHeader.className = "left-elements-wrapper";
-
       // Site
       const siteHeaderWrapper = document.createElement('div');
       siteHeaderWrapper.className = "header-element";
