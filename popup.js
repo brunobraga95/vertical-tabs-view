@@ -100,6 +100,28 @@ const FocusOnFirstTab = async () => {
   document.getElementById("search-bar").focus();
 }
 
+const CreateHeaderHelper = async (sortBy, tabs) => {
+  let sortedTabs;
+  if(!tabs) {
+    const tabsMetadata = await retrievedTabsMetadata();
+    let tabs = await chrome.tabs.query({});
+  
+    sortedTabs = tabs.map(tab => {
+      let site = tab?.url && tab.url.length > 0 ? (new URL(tab.url)) : "";
+      site = site !== "" ? site.hostname.replace("www.", "") : "";
+      return { ...tab, site, updatedAt: tabsMetadata[tab.id] ? tabsMetadata[tab.id].updatedAt : Date.now() }
+    });
+    sortedTabs.sort((a, b) => CreateTabsListCompare(a, b, sortBy));
+  } else {
+    sortedTabs = tabs;
+  }
+  CreateHeader(sortedTabs, (sortBy) => CreateTabsList(sortBy), async (ids) => {
+    await CloseAllTabsWithIds(ids);
+    CreateTabsList(sortBy, /*scrollToTop=*/false);
+  });  
+}
+
+
 const CreateTabsList = async (sortBy, scrollToTop = true) => {
   chrome.storage.local.set({ lastCreateTabsListContext: { sortBy, scrollToTop } }, function() {});
   const tabsMetadata = await retrievedTabsMetadata();
@@ -123,7 +145,7 @@ const CreateTabsList = async (sortBy, scrollToTop = true) => {
   if(scrollToTop && document.getElementsByClassName("tab-wrapper")?.length > 0) {
     document.getElementsByClassName("tab-wrapper")[0].childNodes[0].scrollIntoView({block: "center", behavior: "instant"});
   }
-  CreateHeader(tabs, (sortBy) => CreateTabsList(sortBy), CloseAllTabsWithIds);
+  CreateHeaderHelper(sortBy, sortedTabs);
   FilterBasedOnSearchValue(document.getElementById("search-bar")?.value || "");
   LoadScheme();
   FocusOnFirstTab();
@@ -156,6 +178,11 @@ chrome.storage.onChanged.addListener(async (changes, namespace) => {
     });
   }
 
+  const RegenerateHeaderInfo = () => {
+    chrome.storage.local.get("lastCreateTabsListContext", (context) => {
+      CreateHeaderHelper(context?.lastCreateTabsListContext?.sortBy || "ACTIVE_ASC");
+    });
+  }
   for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
     if(key === "theme") {
       LoadScheme();
@@ -170,7 +197,7 @@ chrome.storage.onChanged.addListener(async (changes, namespace) => {
         const tabHtml = GetTabFromID(key);
         const tabs = await chrome.tabs.query({});
         const tab = tabs.find(tab => tab.id === parseInt(key));
-        if (!tab || !tabHtml) {
+        if (!tab || (!tabHtml && existingTabUpdated)) {
           fallbackLoadEverything();
           continue;
         }
@@ -183,19 +210,23 @@ chrome.storage.onChanged.addListener(async (changes, namespace) => {
             continue;
           }
           tabHtml.parentNode.removeChild(tabHtml);
+          // TODO: Tabs should not always be inserted in the beginning, I need to check the current sorting a value.
           currentTabsList.insertBefore(newTab, currentTabsList.firstChild);
           // load scheme to apply changed
           LoadScheme();
           FocusOnFirstTab();
           // now make it visible.
           newTab.style.visibility = ""; 
+          RegenerateHeaderInfo();
         } else {
           currentTabsList.insertBefore(newTab, currentTabsList.firstChild);
           // load scheme to apply changed
           LoadScheme();
           // now make it visible.
           newTab.style.visibility = "";
+          RegenerateHeaderInfo();
         }
+
       } else if(oldValue && oldValue.updatedAt && !newValue) {
         const tabHtml = GetTabFromID(key);
         if (!tabHtml) {
@@ -203,6 +234,7 @@ chrome.storage.onChanged.addListener(async (changes, namespace) => {
           continue;
         }
         tabHtml.parentNode.removeChild(tabHtml);
+        RegenerateHeaderInfo();
       } else {
         fallbackLoadEverything();
         continue;

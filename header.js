@@ -64,12 +64,10 @@ const UnhighLightDuplicatedTabs = (duplicatedTabsMap) => {
   duplicateTabsWrapper.classList.remove("highlighted-duplicated-tabs");
   highlightDuplicatedItemText.textContent = "highlight duplicated";
   Object.keys(duplicatedTabsMap).forEach((url) => {
-    if(duplicatedTabsMap[url].counter > 1) {
       duplicatedTabsMap[url].tabs.forEach(tab => {
         const tabInfoWrapper = document.getElementById("tab_info_wrapper_" + tab.id);
         tabInfoWrapper.style.cssText = tabInfoWrapper.style.cssText.replace("border: 3px solid rgb(0, 180, 204);", "");
       })
-    }
   });
 }
 
@@ -90,7 +88,18 @@ const HighLightDuplicatedTabs = (duplicatedTabsMap) => {
   });
 }
 
-export const MaybeHighlightTabs = (duplicatedTabsMap) => {
+const HasDuplicatedTabs = (duplicatedTabsMap) => {
+  let duplicated = false;
+  Object.keys(duplicatedTabsMap).forEach((url) => {
+    duplicated |= (duplicatedTabsMap[url].counter > 1);
+  });
+  return duplicated;
+}
+
+export const MaybeHighlightOrUnhighlightTabs = (duplicatedTabsMap) => {
+  if(!HasDuplicatedTabs(duplicatedTabsMap)) {
+    UnhighLightDuplicatedTabs(duplicatedTabsMap);
+  }
   if(AreDuplicatedHighlighted()) {
     HighLightDuplicatedTabs(duplicatedTabsMap);
   }
@@ -309,7 +318,7 @@ export const CreateHeader = (tabs, onSortedButtonClicked, onRemoveDuplicates) =>
       wrapper.appendChild(header);
     }
     ShowChipsIfNeeded(tabs);
-    MaybeHighlightTabs(DUPLICATED_TABS_MAP);
+    MaybeHighlightOrUnhighlightTabs(DUPLICATED_TABS_MAP);
     ThemeModelElement();
 }
   

@@ -81,6 +81,7 @@
 .close-button {
   cursor: pointer;
   width: 2.5%;
+  visibility: hidden;
 }
 
 .close-button:hover {
@@ -293,6 +294,10 @@
   display: flex !important;
   align-items:center;
   justify-content: space-around;
+}
+
+.tab-wrapper:hover .close-button {
+  visibility: visible;
 }
 
 .url-title-text {

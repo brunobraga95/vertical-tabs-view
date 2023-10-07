@@ -1,9 +1,6 @@
 export const CloseAllTabsWithIds = async (ids) => {
     // Only remove tabs that exist.
     const tabs = await chrome.tabs.query({});
-    console.log(tabs.map(tab => tab.id));
-    console.log(ids);
-    console.log(ids.filter(id => tabs.map(tab => tab.id).find(existingsId => existingsId === id)));
     chrome.tabs.remove(ids.filter(id => tabs.map(tab => tab.id).find(existingsId => existingsId === id)), () => {
       chrome.storage.local.remove(ids.map((id) => Number.isInteger(id) ? id.toString() : id), () => {
         chrome.storage.local.get("lastCreateTabsListContext", (context) => {
