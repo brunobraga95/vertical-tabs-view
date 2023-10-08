@@ -3,28 +3,27 @@
   font-size: 16px;
 }
 .default-button {
-  background-color:#388e3c;
+  background-color: #388e3c;
   border-radius: 5px;
   color: white;
-  border:none;
-  outline:none;
-  cursor:pointer;
-  font-size:12px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  font-size: 12px;
   padding: 5px;
 }
 
 .default-button.secondary-button {
-  background-color: transparent !important; 
-  color:#388e3c !important;
+  background-color: transparent !important;
+  color: #388e3c !important;
   border: 2px solid #388e3c;
 }
 
 .default-button:active {
   transform: translateY(1px);
   filter: saturate(150%);
-  background-color:#388e3c !important;
+  background-color: #388e3c !important;
   color: white !important;
-
 }
 
 .update-default-auto-deletion-input {
@@ -37,7 +36,7 @@
 .auto-delete-button-wrapper {
   position: relative;
 }
-  
+
 .updated-tooltip {
   position: absolute;
   color: white;
@@ -53,24 +52,24 @@
 
 .header-button {
   font-size: 14px;
-  font-weight:500;
-  color:#757b86;
-  font-weight:600;
+  font-weight: 500;
+  color: #757b86;
+  font-weight: 600;
 }
 
-.header-button:focus{
-  outline: none;  
+.header-button:focus {
+  outline: none;
 }
 
 .sortIcon {
-  color:#757b86;
+  color: #757b86;
   font-size: 10px;
   margin-left: 3px;
 }
 
 .header-element {
   cursor: pointer;
-  display: flex; 
+  display: flex;
   align-items: center;
 }
 
@@ -85,11 +84,11 @@
 }
 
 .close-button:hover {
-  color:red !important;
+  color: red !important;
 }
 
 .close-tab-icon:hover {
-  color:red !important;
+  color: red !important;
 }
 
 .more-vert-button {
@@ -105,18 +104,19 @@
   color: black !important;
 }
 
-
 .more-vert-tab-icon {
   font-size: 18px !important;
 }
 
 .tab-info-wrapper {
   width: calc(95% - 30px);
-  align-items:center;
-  display:flex;justify-content: space-between;margin-bottom: 5px;
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
   background-color: #ffffff;
   padding: 8px 15px;
-  border-radius: 6px; 
+  border-radius: 6px;
   border: 1px solid #abb0b8;
 }
 
@@ -125,9 +125,9 @@
   box-shadow: 0 0 0 2px rgb(0, 180, 204) inset;
 }
 
-.focused-tab-info-wrapper-no-hover .tab-info-wrapper{
-    border: 1px solid #abb0b8 !important;
-    box-shadow: 0 0 0 0px rgb(0, 180, 204) inset !important;
+.focused-tab-info-wrapper-no-hover .tab-info-wrapper {
+  border: 1px solid #abb0b8 !important;
+  box-shadow: 0 0 0 0px rgb(0, 180, 204) inset !important;
 }
 
 .tab-info-wrapper:hover {
@@ -146,35 +146,35 @@
 .tooltip {
   visibility: hidden;
   z-index: 1;
-  
+
   width: 130px;
   padding: 10px;
 
   background: #333;
-  color:white;
-  
+  color: white;
+
   position: absolute;
   left: -140px;
 
   border-radius: 9px;
   font: 16px;
-  
+
   box-shadow: 0 0 3px rgba(56, 54, 54, 0.86);
 }
 
-.close-all-button:hover .tooltip{
+.close-all-button:hover .tooltip {
   visibility: visible;
 }
 
 .site-link {
   font-size: 12px;
-  font-weight:500;
-  color:#757b86;
+  font-weight: 500;
+  color: #757b86;
   font-weight: 700;
-  overflow:hidden;
-  white-space:nowrap;
+  overflow: hidden;
+  white-space: nowrap;
   text-overflow: ellipsis;
-  cursor:pointer;
+  cursor: pointer;
 }
 
 .info-chip {
@@ -224,9 +224,9 @@
 
 .info-chip-text {
   font-size: 13px;
-  font-weight:500;
-  color:white;
-  font-weight:600;
+  font-weight: 500;
+  color: white;
+  font-weight: 600;
 }
 
 .title-header-wrapper {
@@ -260,7 +260,9 @@
   width: 150px;
   border-radius: 10px;
   background: white;
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px;
+  box-shadow:
+    rgba(0, 0, 0, 0.25) 0px 14px 28px,
+    rgba(0, 0, 0, 0.22) 0px 10px 10px;
 }
 
 .popup-menu-item {
@@ -292,7 +294,7 @@
 
 .tab-wrapper {
   display: flex !important;
-  align-items:center;
+  align-items: center;
   justify-content: space-around;
 }
 
@@ -302,19 +304,19 @@
 
 .url-title-text {
   font-size: 12px;
-  font-weight:500;
-  color:#757b86;
+  font-weight: 500;
+  color: #757b86;
   font-weight: 700;
-  overflow:hidden;
-  white-space:nowrap;
+  overflow: hidden;
+  white-space: nowrap;
   text-overflow: ellipsis;
-  cursor:pointer;
+  cursor: pointer;
 }
 
 .updated-ago-text {
   font-size: 12px;
-  font-weight:500;
-  color:#757b86;
+  font-weight: 500;
+  color: #757b86;
   font-weight: 700;
 }
 

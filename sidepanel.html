@@ -1,60 +1,85 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Document</title>
-  <link rel="stylesheet" href="popup.css">
-  <link rel="stylesheet" href="searchbar.css">
-</head>
-<body id="body" style="margin: 0px;background-color: #f6f7f8;">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet">
-    <div style="width:100%;">
-      <div id="top-header" style="position:sticky;top:0px;background-color: #f6f7f8;z-index:10;padding: 0 15px;";>
-      <div id="header-top-section" class="header-top-section">
-        <div style="font-weight:500;margin: 20px 0px; position: relative;display:inline-block;">
-          <h2 class="title" id="title">Vertical Tabs</h2>
-          <div class="open-tabs-wrapper" id="open-tabs-wrapper">
-            <span id="open-tabs-counter"></span>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Document</title>
+    <link rel="stylesheet" href="popup.css" />
+    <link rel="stylesheet" href="searchbar.css" />
+  </head>
+  <body id="body" style="margin: 0px; background-color: #f6f7f8">
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <div style="width: 100%">
+      <div
+        id="top-header"
+        style="
+          position: sticky;
+          top: 0px;
+          background-color: #f6f7f8;
+          z-index: 10;
+          padding: 0 15px;
+        "
+        ;
+      >
+        <div id="header-top-section" class="header-top-section">
+          <div
+            style="
+              font-weight: 500;
+              margin: 20px 0px;
+              position: relative;
+              display: inline-block;
+            "
+          >
+            <h2 class="title" id="title">Vertical Tabs</h2>
+            <div class="open-tabs-wrapper" id="open-tabs-wrapper">
+              <span id="open-tabs-counter"></span>
+            </div>
+          </div>
+          <div id="donate_and_theme_wrapper">
+            <a
+              class="suggestions-wrapper"
+              href="https://forms.gle/pX1u5cpPRZFsPboo9"
+              target="blank"
+              tabindex="-1"
+            >
+              <span class="material-icons" id="suggestions_theme_icon">
+                hearing
+              </span>
+              <span id="suggestions-text"> suggestions </span>
+            </a>
+            <a
+              class="donate-wrapper"
+              href="https://www.paypal.com/donate/?hosted_button_id=AWEX5VLYTC3D6"
+              target="blank"
+              tabindex="-1"
+            >
+              <span class="material-icons" id="donate_theme_icon">
+                volunteer_activism
+              </span>
+              <span id="donate-text"> coffe? </span>
+            </a>
+            <div class="toggle-theme-wrapper">
+              <span id="toggle-theme-text"> Dark Mode </span>
+              <span class="material-icons" id="toggle_theme_icon"> </span>
+            </div>
           </div>
         </div>
-        <div id="donate_and_theme_wrapper">
-          <a class="suggestions-wrapper" href="https://forms.gle/pX1u5cpPRZFsPboo9" target="blank" tabindex="-1">
-            <span class="material-icons" id="suggestions_theme_icon">
-              hearing
-          </span>
-            <span id="suggestions-text">
-              suggestions
-            </span>
-          </a>
-          <a class="donate-wrapper" href="https://www.paypal.com/donate/?hosted_button_id=AWEX5VLYTC3D6" target="blank" tabindex="-1">
-            <span class="material-icons" id="donate_theme_icon">
-              volunteer_activism
-          </span>
-            <span id="donate-text">
-              coffe?  
-            </span>
-          </a>
-          <div class="toggle-theme-wrapper">
-            <span id="toggle-theme-text">
-              Dark Mode    
-            </span>
-            <span class="material-icons" id="toggle_theme_icon">
-            </span>
-          </div>
-        </div> 
+        <div class="search">
+          <input id="search-bar" type="text" class="searchTerm" />
+          <button
+            id="search-bar-button"
+            type="submit"
+            tabindex="-1"
+            class="searchButton"
+          >
+            <span class="material-icons">search</span>
+          </button>
+        </div>
+        <div id="header" style="width: 100%"></div>
       </div>
-      <div class="search">
-        <input id="search-bar" type="text" class="searchTerm">
-        <button id="search-bar-button" type="submit" tabindex="-1" class="searchButton">
-          <span class="material-icons">search</span>
-       </button>
-     </div>
-     <div id="header" style="width: 100%">
-    </div>  
-    </div>  
-      <div id="tabs-list" style="padding: 15px;">
-      </div>    
+      <div id="tabs-list" style="padding: 15px"></div>
     </div>
     <script type="module" src="colors.js" charset="utf-8"></script>
     <script type="module" src="tab_actions.js" charset="utf-8"></script>
@@ -63,6 +88,5 @@
     <script type="module" src="popup.js" charset="utf-8"></script>
     <script type="module" src="header.js" charset="utf-8"></script>
     <script type="module" src="searchbar.js" charset="utf-8"></script>
-</body>
+  </body>
 </html>
-

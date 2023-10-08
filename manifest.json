@@ -1,21 +1,22 @@
 {
   "name": "Vertical Tabs Side Panel",
-  "version": "0.0.7.5",
+  "version": "0.0.7.6",
   "manifest_version": 3,
   "action": {
     "default_title": "Vertical Tabs Side Panel"
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "side_panel": {
     "default_path": "sidepanel.html"
   },
-  "permissions": ["storage","tabs", "sidePanel"],
-  "icons": { 
+  "permissions": ["storage", "tabs", "sidePanel"],
+  "icons": {
     "16": "verticaltabsview16.png",
     "48": "verticaltabsview48.png",
-   "128": "verticaltabsview128.png"
+    "128": "verticaltabsview128.png"
   },
   "commands": {
     "_execute_action": {
@@ -29,6 +30,3 @@
     }
   }
 }
-
-
-
