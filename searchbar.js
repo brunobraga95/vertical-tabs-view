@@ -37,8 +37,8 @@ export const FilterBasedOnSearchValue = async (text) => {
     let url = urlList[i];
     let tabInfo = url.childNodes[0];
     let urlValue =
-      url.childNodes[0].childNodes[1].childNodes[0].childNodes[0].attributes[1].textContent ||
-      "";
+      url.childNodes[0].childNodes[1].childNodes[0].childNodes[0].attributes[1]
+        .textContent || "";
     let titleValue =
       url.childNodes[0].childNodes[1].childNodes[0].innerText || "";
     urlValue = urlValue.toLowerCase();

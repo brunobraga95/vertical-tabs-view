@@ -32,7 +32,8 @@ export const CreateTabElement = (tab) => {
   }
 
   const titleAndUpdatedAgoWrapper = document.createElement("div");
-  titleAndUpdatedAgoWrapper.style.cssText = "display:flex; width: 85%; flex-direction: column;";
+  titleAndUpdatedAgoWrapper.style.cssText =
+    "display:flex; width: 85%; flex-direction: column;";
 
   const titleWrapper = document.createElement("div");
   titleWrapper.style.cssText = "display:flex; width: 100%";
@@ -59,8 +60,7 @@ export const CreateTabElement = (tab) => {
 
   updatedAtElement.textContent = updateAgo;
   const updatedAtElementWrapper = document.createElement("div");
-  updatedAtElementWrapper.style.cssText =
-    "display:flex; width: 90%;";
+  updatedAtElementWrapper.style.cssText = "display:flex; width: 90%;";
   updatedAtElementWrapper.appendChild(updatedAtElement);
 
   console.log(titleWrapper);
