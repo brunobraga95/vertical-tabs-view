@@ -335,6 +335,7 @@
   font-weight: 500;
   position: relative;
   top: 5px;
+  text-align: center;
 }
 
 .toggle-theme-wrapper {
@@ -364,6 +365,7 @@
   text-decoration: none;
   position: relative;
   left: 5px;
+  margin: 0px 20px;
 }
 
 #donate_theme_icon {
@@ -398,7 +400,7 @@
   display: flex;
   align-items: center;
   width: 65%;
-  justify-content: space-between;
+  justify-content: end;
 }
 
 .header-child {
