@@ -269,7 +269,8 @@ chrome.storage.onChanged.addListener(async (changes, namespace) => {
         newTab.style.visibility = "hidden";
         const currentTabsList = GetCurrenTabsHtml();
         if (existingTabUpdated) {
-          if (!tab.active) {
+          // TODO: Find out why tabHtml.parent can be null
+          if (!tab.active || !tabHtml.parentNode) {
             fallbackLoadEverything();
             continue;
           }

@@ -55,6 +55,15 @@ document.getElementById("suggestions_theme_icon").onclick = () =>
   Analytics.fireEvent("suggestions_button_clicked");
 document.getElementById("donate_theme_icon").onclick = () =>
   Analytics.fireEvent("donate_button_clicked");
+document.getElementById("toggle_theme_icon").onclick = async () => {
+  Analytics.fireEvent("event_theme_toogle_clicked");
+  const upToDateMode =
+    (await chrome.storage.local.get("theme")).theme || "classic_mode";
+  let entry = {};
+  entry["theme"] =
+    upToDateMode === "classic_mode" ? "dark_mode" : "classic_mode";
+  chrome.storage.local.set(entry, function () {});
+};
 
 const showDuplicatedTabs = () => {
   Analytics.fireEvent("duplicated_tabs_menu_clicked");
@@ -99,7 +108,7 @@ const UnhighLightDuplicatedTabs = (duplicatedTabsMap) => {
         "tab_info_wrapper_" + tab.id,
       );
       tabInfoWrapper.style.cssText = tabInfoWrapper.style.cssText.replace(
-        "border: 3px solid rgb(0, 180, 204);",
+        "border: 1px solid rgb(0, 180, 204);",
         "",
       );
     });
@@ -123,7 +132,7 @@ const HighLightDuplicatedTabs = (duplicatedTabsMap) => {
         const tabInfoWrapper = document.getElementById(
           "tab_info_wrapper_" + tab.id,
         );
-        tabInfoWrapper.style.cssText += "border: 3px solid rgb(0, 180, 204);";
+        tabInfoWrapper.style.cssText += "border: 2px solid rgb(0, 180, 204);";
       });
     }
   });
@@ -188,18 +197,6 @@ const getDuplicatedTabs = (tabs) => {
   return duplicatedTabsMap;
 };
 
-const ThemeModelElement = async () => {
-  const toogleThemeIcon = document.getElementById("toggle_theme_icon");
-  toogleThemeIcon.addEventListener("click", async () => {
-    Analytics.fireEvent("event_theme_toogle_clicked");
-    const upToDateMode =
-      (await chrome.storage.local.get("theme")).theme || "classic_mode";
-    let entry = {};
-    entry["theme"] =
-      upToDateMode === "classic_mode" ? "dark_mode" : "classic_mode";
-    chrome.storage.local.set(entry, function () {});
-  });
-};
 export const ShowChipsIfNeeded = (tabs) => {
   const duplicatedTabsMap = getDuplicatedTabs(tabs);
   let duplicatesCounter = 0;
@@ -376,5 +373,4 @@ export const CreateHeader = (
   }
   ShowChipsIfNeeded(tabs);
   MaybeHighlightOrUnhighlightTabs(DUPLICATED_TABS_MAP);
-  ThemeModelElement();
 };

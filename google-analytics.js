@@ -2,6 +2,8 @@ const GA_ENDPOINT = "https://www.google-analytics.com/mp/collect";
 const GA_DEBUG_ENDPOINT = "https://www.google-analytics.com/debug/mp/collect";
 
 // Get via https://developers.google.com/analytics/devguides/collection/protocol/ga4/sending-events?client_type=gtag#recommended_parameters_for_reports
+const MEASUREMENT_ID = "G-E6G9KNYP7L";
+const API_SECRET = "oCBnT-8mTymlr39b0a7ikg";
 const DEFAULT_ENGAGEMENT_TIME_MSEC = 100;
 
 // Duration of inactivity after which a new session is created
@@ -58,6 +60,12 @@ export class Analytics {
 
   // Fires an event with optional params. Event names must only include letters and underscores.
   async fireEvent(name, params = {}) {
+    let languagesArray = await chrome.i18n.getAcceptLanguages();
+    let language = languagesArray.length > 0 ? languagesArray[0] : null;
+    let params_with_language = { ...params };
+    if (language) {
+      params_with_language.language = language;
+    }
     // Configure session id and engagement time if not present, for more details see:
     // https://developers.google.com/analytics/devguides/collection/protocol/ga4/sending-events?client_type=gtag#recommended_parameters_for_reports
     if (!params.session_id) {
@@ -78,7 +86,7 @@ export class Analytics {
             events: [
               {
                 name,
-                params,
+                params: params_with_language,
               },
             ],
           }),
@@ -87,7 +95,6 @@ export class Analytics {
       if (!this.debug) {
         return;
       }
-      console.log(await response.text());
     } catch (e) {
       console.error("Google Analytics request failed with an exception", e);
     }

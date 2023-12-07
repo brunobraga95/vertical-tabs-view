@@ -31,8 +31,11 @@ export const CreateTabElement = (tab) => {
     siteWrapper.appendChild(site);
   }
 
+  const titleAndUpdatedAgoWrapper = document.createElement("div");
+  titleAndUpdatedAgoWrapper.style.cssText = "display:flex; width: 85%; flex-direction: column;";
+
   const titleWrapper = document.createElement("div");
-  titleWrapper.style.cssText = "display:flex; width: 70%";
+  titleWrapper.style.cssText = "display:flex; width: 100%";
   const title = document.createElement("a");
   title.setAttribute("id", "tab_" + tab.id);
   title.setAttribute("url", tab.url);
@@ -57,12 +60,15 @@ export const CreateTabElement = (tab) => {
   updatedAtElement.textContent = updateAgo;
   const updatedAtElementWrapper = document.createElement("div");
   updatedAtElementWrapper.style.cssText =
-    "display:flex; width: 20%;justify-content: end;";
+    "display:flex; width: 90%;";
   updatedAtElementWrapper.appendChild(updatedAtElement);
 
+  console.log(titleWrapper);
+  titleAndUpdatedAgoWrapper.appendChild(titleWrapper);
+  titleAndUpdatedAgoWrapper.appendChild(updatedAtElementWrapper);
+
   tabInfoWrapper.appendChild(siteWrapper);
-  tabInfoWrapper.appendChild(titleWrapper);
-  tabInfoWrapper.appendChild(updatedAtElementWrapper);
+  tabInfoWrapper.appendChild(titleAndUpdatedAgoWrapper);
   tabInfoWrapper.appendChild(CreateTabMoreVertMenu(tab.id));
 
   const closeTab = document.createElement("div");

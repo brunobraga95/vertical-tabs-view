@@ -7,9 +7,6 @@ addEventListener("unhandledrejection", async (event) => {
   Analytics.fireErrorEvent(event.reason);
 });
 
-// Throw an exception after a timeout to trigger an exception analytics event
-setTimeout(throwAnException, 2000);
-
 chrome.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: true })
   .catch((error) => console.error(error));
