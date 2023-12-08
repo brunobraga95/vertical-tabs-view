@@ -79,24 +79,34 @@
 
 .close-button {
   cursor: pointer;
-  width: 2.5%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 18px;
+  height: 18px;
+  top: -4px;
+  border-radius: 100% !important;
   visibility: hidden;
 }
 
 .close-button:hover {
-  color: red !important;
+  color: rgb(0, 180, 204) !important;
+  background: #aaa;
+  visibility: visible;
+  /* border-radius: 50%; */
 }
 
-.close-tab-icon:hover {
-  color: red !important;
+.close-tab-icon {
+  font-size: 14px !important;
 }
 
 .more-vert-button {
   color: #777;
   cursor: pointer;
   width: 2.5%;
-  position: relative;
-  left: -2px;
+  position: absolute;
+  right: 15px;
 }
 
 .more-vert-button:hover {
@@ -109,14 +119,15 @@
 }
 
 .tab-info-wrapper {
-  width: calc(95% - 30px);
+  width: calc(100% - 50px);
   align-items: center;
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   background-color: #ffffff;
-  padding: 10px 15px;
+  padding: 9px 15px;
   border-radius: 6px;
+  position: relative;
 }
 
 .tab-info-wrapper:hover {
