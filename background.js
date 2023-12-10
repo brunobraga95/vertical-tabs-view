@@ -1,7 +1,41 @@
 import Analytics from "./google-analytics.js";
+import { containsFocusClass } from "./tab_actions.js";
 
 let badgeColor = [0, 255, 255, 255];
 let tabs = [];
+
+const NEW_TAB_URL = 'chrome://newtab/';
+
+const addParentTabMap = (tab) => {
+  console.log(tab);
+  console.log(tab.url, tab.openerTabId);
+  if(tab.url === NEW_TAB_URL || !tab.openerTabId)
+    return;
+
+  chrome.storage.local.get(["parentTabMap"], (parentTabMap) => {
+    const updatedParentTabMap = { ...(parentTabMap.parentTabMap) || {} };
+    updatedParentTabMap[tab.id] = tab.openerTabId;
+    console.log(updatedParentTabMap);
+    chrome.storage.local.set({"parentTabMap": updatedParentTabMap}, function(v) {console.log(v)});
+  });
+}
+
+const removeTabIdFromParentTabMap = (deletedTab) => {
+  chrome.storage.local.get("parentTabMap", (parentTabMap) => {
+    let updatedParentTabMap = {};
+    for(tabId in parentTabMap?.parentTabMap || {}) {
+      console.log(tabId, parentTabMap.parentTabMap[tabId], deletedTab);
+      if(parentTabMap?.parentTabMap[tabId] !== deletedTab) {
+        updatedParentTabMap[tabId] = parentTabMap.parentTabMap[tabId]
+      } else if(parentTabMap.parentTabMap[deletedTab]) {
+        // check if deleted tab has parent.
+        console.log("tab has parent");
+        updatedParentTabMap[tabId] = parentTabMap.parentTabMap[deletedTab]
+      }
+    }
+    chrome.storage.local.set({"parentTabMap": updatedParentTabMap}, function() {});
+  });
+}
 
 addEventListener("unhandledrejection", async (event) => {
   Analytics.fireErrorEvent(event.reason);
@@ -54,7 +88,7 @@ function init() {
   chrome.storage.local.get(null, (storedTabs) => {
     const currentTabIds = tabs.map((tab) => tab.id.toString());
     let storedTabKeys = [];
-    Object.keys(storedTabs).forEach((storedTabKey) => {
+    Object.keys(storedTabs).filter((storedTab) => /*Remove tabs parent map.*/storedTab !== "parentTabMap").forEach((storedTabKey) => {
       if (storedTabKey !== "theme" && !currentTabIds.includes(storedTabKey)) {
         tabsToRemove.push(storedTabKey);
       } else if (storedTabKey !== "theme") {
@@ -71,9 +105,12 @@ function init() {
   });
 
   chrome.tabs.onCreated.addListener((tab) => {
+    console.log("nefore loading");
     if (!tab.id || tab.status === "loading") return;
     let entry = {};
     tabs.push(tab);
+    console.log("after loading");
+    addParentTabMap(tab);
     entry[tab.id] = {
       updatedAt: Date.now(),
     };
@@ -96,6 +133,7 @@ function init() {
       tabs.splice(idx, 1);
       updateBadgeText();
     }
+    removeTabIdFromParentTabMap(tab);
     chrome.storage.local.remove(tab.toString(), () => {});
   });
 
@@ -112,6 +150,7 @@ function init() {
     tabs[indexOfTab(tabId)] = tab;
     updateBadgeText();
     let entry = {};
+    addParentTabMap(tab);
     entry[tabId] = {
       updatedAt: Date.now(),
     };

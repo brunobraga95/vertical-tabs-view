@@ -5,12 +5,72 @@ export const GetCurrenTabsHtml = () => document.getElementById("tabs-list");
 export const GetTabFromID = (id) =>
   document.getElementById("tab_wrapper_" + id);
 
-export const CreateTabElement = (tab) => {
+  
+  const AddHorizontalDotsForTreeLayout = (tabId, level) => {
+    let tab = GetTabFromID(tabId);
+  
+    const horizontalDotsWrapper = document.createElement('div');
+    horizontalDotsWrapper.className = "horizontal-dots-wrapper";
+    horizontalDotsWrapper.innerText = ".....";
+  
+    tab.appendChild(horizontalDotsWrapper);
+  }
+  
+  const AddVerticalDotsForTreeLayout = (parentTab) => {
+    let lowestChildTab = null;
+    parentTab.children.forEach(childId => {
+      let childTab = GetTabFromID(childId);
+      if(!lowestChildTab)
+        lowestChildTab = childTab;
+  
+      if(childTab.getBoundingClientRect().top > lowestChildTab.getBoundingClientRect().top)
+      lowestChildTab = childTab;
+    });
+  
+    let tabHtml = GetTabFromID(parentTab.id);
+  
+    const verticalDotsWrapper = document.createElement('div');
+    verticalDotsWrapper.className = "vertical-dots-wrapper";
+    const expectedHeight = lowestChildTab.getBoundingClientRect().top - tabHtml.getBoundingClientRect().bottom + (lowestChildTab.getBoundingClientRect().bottom - lowestChildTab.getBoundingClientRect().top)/2 - 1;
+    verticalDotsWrapper.style.height = `${expectedHeight}px`
+    tabHtml.appendChild(verticalDotsWrapper);
+    console.log(verticalDotsWrapper.getBoundingClientRect().bottom, verticalDotsWrapper.getBoundingClientRect().top, expectedHeight);
+    for(let i = 0; i < 100; i++) {
+      console.log("really adding");
+      verticalDotsWrapper.textContent += ".";
+    }
+  
+  }
+  
+  const RenderTabsAsTree = (tabs, tab, renderedTabs, tabIdToIndex, level, refetchTabs, wrapper) => {
+    console.log(tab.openerTabId, renderedTabs[tab.openerTabId]);
+    if(tab.openerTabId && !renderedTabs[tab.openerTabId]) {
+      console.log("recursion");
+      RenderTabsAsTree(tabs, tabs[tabIdToIndex[tab.openerTabId]], renderedTabs, tabIdToIndex, 0, refetchTabs, wrapper);
+    }
+    if(!renderedTabs[tab.id]) {
+      const tabWrapper = CreateTabElement(tab, tabs, refetchTabs, level);
+      wrapper.appendChild(tabWrapper); 
+      renderedTabs[tab.id] = true;
+      if(tab.children) {
+        tab.children.forEach(childId => {
+          const newLevel = level + 1;
+          console.log("further recursion");
+          RenderTabsAsTree(tabs, tabs[tabIdToIndex[childId]], renderedTabs, tabIdToIndex, newLevel, refetchTabs, wrapper);
+          AddHorizontalDotsForTreeLayout(childId);
+        });
+        console.log("add vertical");
+        AddVerticalDotsForTreeLayout(tab);
+      }
+    }
+  }
+  
+export const CreateTabElement = (tab, tabs, refetchTabs, level = 0) => {
   const tabWrapper = document.createElement("div");
   tabWrapper.className = "tab-wrapper";
   tabWrapper.setAttribute("id", "tab_wrapper_" + tab.id);
   tabWrapper.style.cssText =
-    "display: flex; align-items:center; justify-content: space-around;";
+    "display: flex; align-items:center; justify-content: space-around;" + "margin-left: " + level * 45 + "px;";
 
   const tabInfoWrapper = document.createElement("div");
   tabInfoWrapper.className = "tab-info-wrapper";
@@ -78,6 +138,7 @@ export const CreateTabElement = (tab) => {
   closeTab.appendChild(closeTabIcon);
   closeTab.addEventListener("click", onCloseTabEvent);
   closeTab.tabId = tab.id;
+  closeTab.callback = () => refetchTabs();
 
   tabWrapper.appendChild(tabInfoWrapper);
   tabWrapper.appendChild(closeTab);
@@ -88,3 +149,19 @@ export const GetFirstTabInfoWrapperElement = () =>
   document.getElementsByClassName("tab-info-wrapper").length > 0
     ? document.getElementsByClassName("tab-info-wrapper")[0]
     : null;
+
+    export const CreateAndAppendTabsAsList = (tabs, refetchTabs, wrapper) => {
+      let tabIdToIndex = {};
+      tabs.forEach((tab, i) => tabIdToIndex[tab.id] = i);
+      let renderedTabs = {}
+      console.log(tabs);
+      tabs.forEach(tab => RenderTabsAsTree(tabs, tab, renderedTabs, tabIdToIndex, 0, refetchTabs, wrapper));
+    
+      // RenderTabsAsTree(tabs, {}, childrenTree, tabIdToIndex, wrapper);
+      /*
+      tabs.forEach(async (tab) => {
+        const tabWrapper = CreateTab(tab, tabs);
+        wrapper.appendChild(tabWrapper);    
+      });
+      */
+    }

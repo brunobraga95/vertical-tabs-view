@@ -4,10 +4,12 @@ import {
   CreateTabElement,
   GetCurrenTabsHtml,
   GetTabFromID,
+  CreateAndAppendTabsAsList,
 } from "./tab_utils.js";
 import { CloseAllTabsWithIds } from "./tab_actions.js";
 import { FilterBasedOnSearchValue } from "./searchbar.js";
 import { COLOR_SCHEMES } from "./colors.js";
+import { getParentTabMap } from "./utils.js";
 
 async function LoadScheme() {
   const theme =
@@ -85,6 +87,27 @@ async function LoadScheme() {
   );
 }
 
+const AddTreeInfo = async (tabs) => {
+  const tabIndexMap = {};
+  tabs.forEach((tab,i) => tabIndexMap[tab.id] = i);
+  console.log("Add tree info");
+  console.log(tabs);
+  tabs.forEach((tab) => {
+    console.log(tab.openerTabId);
+    const parentId = tab.openerTabId;
+    if(parentId && tabIndexMap[tab.openerTabId]) {
+      console.log("adding tree info");
+      const parentIndex = tabIndexMap[parentId];
+      if(!tabs[parentIndex].children) {
+        tabs[parentIndex].children = [tab.id];
+      } else {
+        tabs[parentIndex].children.push(tab.id);
+      }
+    }
+  });
+  return tabs;
+}
+
 function retrievedTabsMetadata() {
   return new Promise((resolve, reject) => {
     // Asynchronously fetch all data from storage.sync.
@@ -97,6 +120,7 @@ function retrievedTabsMetadata() {
     });
   });
 }
+
 
 const CreateTabsListCompare = (a, b, type) => {
   if (type == "ACTIVE_ASC") {
@@ -130,68 +154,56 @@ const FocusOnFirstTab = async () => {
   document.getElementById("search-bar").focus();
 };
 
-const CreateHeaderHelper = async (sortBy, tabs) => {
-  let sortedTabs;
-  if (!tabs) {
-    const tabsMetadata = await retrievedTabsMetadata();
-    let tabs = await chrome.tabs.query({});
+const sortTabsAndAddMetadata = async (sortBy, createHeader = false) => {
+  let tabs = await chrome.tabs.query({});
+  const tabsMetadata = await retrievedTabsMetadata();
+  let parentTabMap = await getParentTabMap();
+  console.log(parentTabMap);
+  const tabIndexMap = {};
+  tabs.forEach((tab,i) => tabIndexMap[tab.id] = i);
 
-    sortedTabs = tabs.map((tab) => {
-      let site = tab?.url && tab.url.length > 0 ? new URL(tab.url) : "";
-      site = site !== "" ? site.hostname.replace("www.", "") : "";
-      return {
-        ...tab,
-        site,
-        updatedAt: tabsMetadata[tab.id]
-          ? tabsMetadata[tab.id].updatedAt
-          : Date.now(),
-      };
-    });
-    sortedTabs.sort((a, b) => CreateTabsListCompare(a, b, sortBy));
-  } else {
-    sortedTabs = tabs;
+  let sortedTabs = tabs.map(tab => {
+    let site = (new URL(tab.url));
+    site = site.hostname.replace("www.", "");
+    let openerTabId = parentTabMap.parentTabMap[tab.id] || undefined;
+    // Remove opener tab id if opener tab does not exist anymore.
+    if(openerTabId && !tabIndexMap[openerTabId]) {
+      openerTabId = undefined;
+    }
+    const updatedAt = tabsMetadata[tab.id] ? tabsMetadata[tab.id].updatedAt : Date.now();
+    return { 
+      ...tab, 
+      site, 
+      updatedAt,
+      openerTabId,
+    }
+  });
+  sortedTabs.sort((a, b) => CreateTabsListCompare(a, b, sortBy));
+  if(createHeader) {
+    CreateHeader(
+      sortedTabs,
+      (sortBy) => CreateTabsList(sortBy),
+      async (ids) => {
+        await CloseAllTabsWithIds(ids);
+        CreateTabsList(sortBy, /*scrollToTop=*/ false);
+      },
+    );
   }
-  CreateHeader(
-    sortedTabs,
-    (sortBy) => CreateTabsList(sortBy),
-    async (ids) => {
-      await CloseAllTabsWithIds(ids);
-      CreateTabsList(sortBy, /*scrollToTop=*/ false);
-    },
-  );
-};
+  return sortedTabs;
+}
 
 const CreateTabsList = async (sortBy, scrollToTop = true) => {
   chrome.storage.local.set(
     { lastCreateTabsListContext: { sortBy, scrollToTop } },
     function () {},
   );
-  const tabsMetadata = await retrievedTabsMetadata();
-  let tabs = await chrome.tabs.query({});
+  let sortedTabs = await sortTabsAndAddMetadata(sortBy);
+  sortedTabs = await AddTreeInfo(sortedTabs);
 
-  let sortedTabs = tabs.map((tab) => {
-    let site = tab?.url && tab.url.length > 0 ? new URL(tab.url) : "";
-    site = site !== "" ? site.hostname.replace("www.", "") : "";
-    return {
-      ...tab,
-      site,
-      updatedAt: tabsMetadata[tab.id]
-        ? tabsMetadata[tab.id].updatedAt
-        : Date.now(),
-    };
-  });
-
-  sortedTabs.sort((a, b) => CreateTabsListCompare(a, b, sortBy));
   let wrapper = document.getElementById("tabs-list");
   wrapper.replaceChildren();
 
-  sortedTabs.forEach(async (tab) => {
-    const tabElement = CreateTabElement(
-      tab,
-      sortedTabs.map((tab) => tab.id),
-    );
-    wrapper.appendChild(tabElement);
-  });
+  CreateAndAppendTabsAsList(sortedTabs,() => CreateTabsList(sortBy, scrollToTop), wrapper);
 
   if (
     scrollToTop &&
@@ -201,7 +213,6 @@ const CreateTabsList = async (sortBy, scrollToTop = true) => {
       .getElementsByClassName("tab-wrapper")[0]
       .childNodes[0].scrollIntoView({ block: "center", behavior: "instant" });
   }
-  CreateHeaderHelper(sortBy, sortedTabs);
   FilterBasedOnSearchValue(document.getElementById("search-bar")?.value || "");
   LoadScheme();
   FocusOnFirstTab();
@@ -239,9 +250,7 @@ chrome.storage.onChanged.addListener(async (changes, namespace) => {
 
   const RegenerateHeaderInfo = () => {
     chrome.storage.local.get("lastCreateTabsListContext", (context) => {
-      CreateHeaderHelper(
-        context?.lastCreateTabsListContext?.sortBy || "ACTIVE_ASC",
-      );
+      sortTabsAndAddMetadata(context?.lastCreateTabsListContext?.sortBy || "ACTIVE_ASC", true);
     });
   };
   for (let [key, { oldValue, newValue }] of Object.entries(changes)) {

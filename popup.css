@@ -309,6 +309,7 @@
   display: flex !important;
   align-items: center;
   justify-content: space-around;
+  position: relative;
 }
 
 .tab-wrapper:hover .close-button {
@@ -421,4 +422,22 @@
   justify-content: space-between;
   padding: 10px 0px;
   align-items: center;
+}
+
+.horizontal-dots-wrapper {
+  position: absolute;
+  height: 10px;
+  top: calc(50% - 9px);
+  left: -20px;
+  color: white;
+  top: 18px;
+}
+
+.vertical-dots-wrapper {
+  position: absolute;
+  writing-mode: vertical-lr;
+  top: calc(100% + 5px);
+  left: 20px;
+  overflow: hidden;
+  color:white;
 }

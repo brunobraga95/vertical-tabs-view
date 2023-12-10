@@ -1,4 +1,5 @@
 import Analytics from "./google-analytics.js";
+import { getTabById} from "./tab_actions.js";
 
 let CURRENT_SORT_TYPE = "ACTIVE_ASC";
 let DUPLICATED_TABS_MAP = {};
@@ -42,7 +43,7 @@ document.addEventListener("click", (evt) => {
     "duplicated-tabs-wrapper",
   );
 
-  if (
+  if (duplicatedTabsMenu && duplicateTabsWrapper &&
     duplicatedTabsMenu.style.cssText.includes("display: block;") &&
     !duplicatedTabsMenu.contains(evt.target) &&
     !duplicateTabsWrapper.contains(evt.target)
@@ -102,11 +103,13 @@ const UnhighLightDuplicatedTabs = (duplicatedTabsMap) => {
 
   duplicateTabsWrapper.classList.remove("highlighted-duplicated-tabs");
   highlightDuplicatedItemText.textContent = "highlight duplicated";
+  console.log(duplicatedTabsMap);
   Object.keys(duplicatedTabsMap).forEach((url) => {
     duplicatedTabsMap[url].tabs.forEach((tab) => {
-      const tabInfoWrapper = document.getElementById(
-        "tab_info_wrapper_" + tab.id,
-      );
+      const tabInfoWrapper = getTabById(tab.id);
+      if(!tabInfoWrapper) {
+        // continue;
+      }
       tabInfoWrapper.style.cssText = tabInfoWrapper.style.cssText.replace(
         "border: 1px solid rgb(0, 180, 204);",
         "",
@@ -129,9 +132,7 @@ const HighLightDuplicatedTabs = (duplicatedTabsMap) => {
   Object.keys(duplicatedTabsMap).forEach((url) => {
     if (duplicatedTabsMap[url].counter > 1) {
       duplicatedTabsMap[url].tabs.forEach((tab) => {
-        const tabInfoWrapper = document.getElementById(
-          "tab_info_wrapper_" + tab.id,
-        );
+        const tabInfoWrapper = getTabById(tab.id);
         tabInfoWrapper.style.cssText += "border: 2px solid rgb(0, 180, 204);";
       });
     }
