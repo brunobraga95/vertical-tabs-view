@@ -125,7 +125,7 @@
   justify-content: space-between;
   margin-bottom: 8px;
   background-color: #ffffff;
-  padding: 7px 15px;
+  padding: 3px 15px;
   border-radius: 6px;
   position: relative;
 }
@@ -316,7 +316,7 @@
 }
 
 .url-title-text {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: #333;
   font-weight: 700;
@@ -327,7 +327,7 @@
 }
 
 .updated-ago-text {
-  font-size: 10px;
+  font-size: 8px;
   font-weight: 500;
   color: #757b86;
   font-weight: 700;
