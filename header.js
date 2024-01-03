@@ -1,7 +1,7 @@
 import Analytics from "./google-analytics.js";
-import { getTabById} from "./tab_actions.js";
+import { getTabById } from "./tab_actions.js";
+import { getViewMode, setViewMode, getSortBy } from "./storage.js";
 
-let CURRENT_SORT_TYPE = "ACTIVE_ASC";
 let DUPLICATED_TABS_MAP = {};
 
 const closeDuplicatedTabsMenu = () => {
@@ -43,7 +43,9 @@ document.addEventListener("click", (evt) => {
     "duplicated-tabs-wrapper",
   );
 
-  if (duplicatedTabsMenu && duplicateTabsWrapper &&
+  if (
+    duplicatedTabsMenu &&
+    duplicateTabsWrapper &&
     duplicatedTabsMenu.style.cssText.includes("display: block;") &&
     !duplicatedTabsMenu.contains(evt.target) &&
     !duplicateTabsWrapper.contains(evt.target)
@@ -103,11 +105,10 @@ const UnhighLightDuplicatedTabs = (duplicatedTabsMap) => {
 
   duplicateTabsWrapper.classList.remove("highlighted-duplicated-tabs");
   highlightDuplicatedItemText.textContent = "highlight duplicated";
-  console.log(duplicatedTabsMap);
   Object.keys(duplicatedTabsMap).forEach((url) => {
     duplicatedTabsMap[url].tabs.forEach((tab) => {
       const tabInfoWrapper = getTabById(tab.id);
-      if(!tabInfoWrapper) {
+      if (!tabInfoWrapper) {
         // continue;
       }
       tabInfoWrapper.style.cssText = tabInfoWrapper.style.cssText.replace(
@@ -156,11 +157,11 @@ export const MaybeHighlightOrUnhighlightTabs = (duplicatedTabsMap) => {
   }
 };
 
-const RemoveDuplicated = (e) => {
+const RemoveDuplicated = async (e) => {
   Analytics.fireEvent("remove_duplicated_tabs_clicked");
   const duplicatedTabsMap = DUPLICATED_TABS_MAP;
   const callback = e.currentTarget.callback;
-  const sortBy = e.currentTarget.sortBy;
+  const sortBy = await getSortBy();
 
   let ids = [];
   let hasActive = false;
@@ -230,7 +231,154 @@ export const ShowChipsIfNeeded = (tabs) => {
   }
 };
 
-export const CreateHeader = (
+const AddIconButton = (label, icon, onClick, elementId, iconId) => {
+  const iconButton = document.createElement("div");
+  iconButton.className = "header-element title-header-wrapper";
+  const iconLabel = document.createElement("span");
+  iconLabel.setAttribute("id", elementId);
+  iconLabel.className = "header-button";
+  iconLabel.textContent = label;
+  const iconElement = document.createElement("span");
+  iconElement.textContent = icon;
+  iconElement.setAttribute("id", iconId);
+  iconElement.className = "material-icons headerIcon";
+  iconButton.appendChild(iconLabel);
+  iconButton.appendChild(iconElement);
+  iconButton.addEventListener("click", () => onClick(iconButton));
+  return iconButton;
+};
+
+const SiteSortingButton = (onSortedButtonClicked, currentSortMode) => {
+  return AddIconButton(
+    "site",
+    "sort",
+    async () => {
+      Analytics.fireEvent("sort_per_domain_clicked");
+      if (currentSortMode == "SITE_ASC") currentSortMode = "SITE_DESC";
+      else currentSortMode = "SITE_ASC";
+      await onSortedButtonClicked(currentSortMode);
+    },
+    "siteHeader",
+    "siteHeaderIcon",
+  );
+};
+
+const TitleSortingButton = (onSortedButtonClicked, currentSortMode) => {
+  return AddIconButton(
+    "title",
+    "sort",
+    async () => {
+      Analytics.fireEvent("sort_per_title_clicked");
+      if (currentSortMode == "TITLE_ASC") currentSortMode = "TITLE_DESC";
+      else currentSortMode = "TITLE_ASC";
+      await onSortedButtonClicked(currentSortMode);
+    },
+    "titleHeader",
+    "titleHeaderIcon",
+  );
+};
+
+const ActiveSortingButton = (onSortedButtonClicked, currentSortMode) => {
+  return AddIconButton(
+    "active",
+    "sort",
+    async () => {
+      Analytics.fireEvent("sort_per_last_used_clicked");
+      if (currentSortMode == "ACTIVE_ASC") currentSortMode = "ACTIVE_DESC";
+      else currentSortMode = "ACTIVE_ASC";
+      await onSortedButtonClicked(currentSortMode);
+    },
+    "activeHeader",
+    "activeHeaderIcon",
+  );
+};
+
+const TreeViewButton = () => {
+  let button = AddIconButton(
+    "tree view",
+    "account_tree",
+    async (iconButton) => {
+      const viewMode = await getViewMode();
+      setViewMode(viewMode === "list" ? "tree" : "list");
+      viewMode === "list" ? "tree" : "list";
+    },
+    "treeHeader",
+    "treeHeaderIcon",
+  );
+
+  const betaBadge = document.createElement("div");
+  betaBadge.className = "beta-badge";
+  betaBadge.setAttribute("id", "beta-badge");
+  betaBadge.textContent = "Beta";
+  button.appendChild(betaBadge);
+
+  return button;
+};
+
+const DuplicatedTabs = (onRemoveDuplicates) => {
+  const chipsHeaderWrapper = document.createElement("div");
+  chipsHeaderWrapper.className = "chips-header-wrapper";
+  // duplicated tabs
+  const duplicatedTabsHeaderWrapper = document.createElement("div");
+  duplicatedTabsHeaderWrapper.setAttribute("id", "duplicated-tabs-wrapper");
+  duplicatedTabsHeaderWrapper.className = "info-chip duplicated-tabs-wrapper";
+  const duplicatedTablsHeader = document.createElement("span");
+  duplicatedTablsHeader.className = "info-chip-text";
+  duplicatedTablsHeader.textContent = "duplicated";
+  duplicatedTabsHeaderWrapper.appendChild(duplicatedTablsHeader);
+  const duplicatedTabsCounter = document.createElement("div");
+  duplicatedTabsCounter.className = "chips-left-circle";
+  const duplicatedCountText = document.createElement("span");
+  duplicatedCountText.setAttribute("id", "duplicated-tabs-counter");
+  duplicatedCountText.className = "chips-left-circle-text";
+  duplicatedTabsCounter.appendChild(duplicatedCountText);
+  duplicatedTabsHeaderWrapper.appendChild(duplicatedTabsCounter);
+
+  const duplicatedTabsMenuIcon = document.createElement("span");
+  duplicatedTabsMenuIcon.setAttribute("id", "duplicated-tabs-menu-icon");
+  duplicatedTabsMenuIcon.textContent = "more_vert";
+  duplicatedTabsMenuIcon.className = "material-icons popup-menu-icon";
+  duplicatedTabsHeaderWrapper.appendChild(duplicatedTabsMenuIcon);
+  duplicatedTabsHeaderWrapper.addEventListener("click", showDuplicatedTabs);
+
+  const duplicatedTabsMenu = document.createElement("div");
+  duplicatedTabsMenu.className = "popup-menu";
+  duplicatedTabsMenu.setAttribute("id", "duplicated-tabs-menu");
+
+  const highlightDuplicatedItem = document.createElement("div");
+  highlightDuplicatedItem.className = "popup-menu-item";
+  highlightDuplicatedItem.addEventListener(
+    "click",
+    HighLightOrUnHighLightDuplicated,
+  );
+
+  const highlightDuplicatedItemText = document.createElement("span");
+  highlightDuplicatedItemText.setAttribute("id", "duplicated-tabs-text");
+  highlightDuplicatedItemText.className = "popup-menu-item-text";
+  highlightDuplicatedItemText.textContent = "highlight duplicated";
+
+  highlightDuplicatedItem.appendChild(highlightDuplicatedItemText);
+
+  const removeDuplicatedItem = document.createElement("div");
+  removeDuplicatedItem.className = "popup-menu-item";
+  removeDuplicatedItem.addEventListener("click", RemoveDuplicated);
+  removeDuplicatedItem.callback = onRemoveDuplicates;
+
+  const removeDuplicatedItemText = document.createElement("span");
+  removeDuplicatedItemText.className = "popup-menu-item-text";
+  removeDuplicatedItemText.textContent = "remove duplicated";
+
+  removeDuplicatedItem.appendChild(removeDuplicatedItemText);
+
+  duplicatedTabsMenu.appendChild(highlightDuplicatedItem);
+  duplicatedTabsMenu.appendChild(removeDuplicatedItem);
+  duplicatedTabsHeaderWrapper.appendChild(duplicatedTabsMenu);
+
+  chipsHeaderWrapper.appendChild(duplicatedTabsHeaderWrapper);
+  return chipsHeaderWrapper;
+};
+
+export const CreateHeader = async (
   tabs,
   onSortedButtonClicked,
   onRemoveDuplicates,
@@ -239,137 +387,31 @@ export const CreateHeader = (
   DUPLICATED_TABS_MAP = getDuplicatedTabs(tabs);
 
   if (wrapper.children.length === 0) {
+    const currentSortMode = await getSortBy();
+    const siteSortingButton = SiteSortingButton(
+      onSortedButtonClicked,
+      currentSortMode,
+    );
+    const titleSortingButton = TitleSortingButton(
+      onSortedButtonClicked,
+      currentSortMode,
+    );
+    const duplicatedTabs = DuplicatedTabs(onRemoveDuplicates);
+    const activeSortingButton = ActiveSortingButton(
+      onSortedButtonClicked,
+      currentSortMode,
+    );
+
     const header = document.createElement("div");
     header.className = "header-child";
     const leftElementsHeader = document.createElement("div");
     leftElementsHeader.className = "left-elements-wrapper";
-    // Site
-    const siteHeaderWrapper = document.createElement("div");
-    siteHeaderWrapper.className = "header-element";
-    const siteHeader = document.createElement("span");
-    siteHeader.setAttribute("id", "siteHeader");
-    siteHeader.className = "header-button";
-    const sortIconsite = document.createElement("span");
-    sortIconsite.textContent = "sort";
-    sortIconsite.className = "material-icons sortIcon";
-    sortIconsite.style.cssText = "margin-left: 0px;";
-    siteHeaderWrapper.appendChild(siteHeader);
-    siteHeaderWrapper.appendChild(sortIconsite);
-    siteHeaderWrapper.addEventListener("click", async () => {
-      Analytics.fireEvent("sort_per_domain_clicked");
-      if (CURRENT_SORT_TYPE == "SITE_ASC") CURRENT_SORT_TYPE = "SITE_DESC";
-      else CURRENT_SORT_TYPE = "SITE_ASC";
-      await onSortedButtonClicked(CURRENT_SORT_TYPE);
-    });
-
-    // Title
-    const titleHeaderWrapper = document.createElement("div");
-    titleHeaderWrapper.className = "header-element title-header-wrapper";
-    const titleHeader = document.createElement("span");
-    titleHeader.setAttribute("id", "siteHeader");
-    titleHeader.className = "header-button";
-    titleHeader.textContent = "Title";
-    const sortIconTitle = document.createElement("span");
-    sortIconTitle.textContent = "sort";
-    sortIconTitle.className = "material-icons sortIcon";
-    titleHeaderWrapper.appendChild(titleHeader);
-    titleHeaderWrapper.appendChild(sortIconTitle);
-    titleHeaderWrapper.addEventListener("click", async () => {
-      Analytics.fireEvent("sort_per_title_clicked");
-      if (CURRENT_SORT_TYPE == "TITLE_ASC") CURRENT_SORT_TYPE = "TITLE_DESC";
-      else CURRENT_SORT_TYPE = "TITLE_ASC";
-      await onSortedButtonClicked(CURRENT_SORT_TYPE);
-    });
-
-    const chipsHeaderWrapper = document.createElement("div");
-    chipsHeaderWrapper.className = "chips-header-wrapper";
-
-    // duplicated tabs
-    const duplicatedTabsHeaderWrapper = document.createElement("div");
-    duplicatedTabsHeaderWrapper.setAttribute("id", "duplicated-tabs-wrapper");
-    duplicatedTabsHeaderWrapper.className = "info-chip duplicated-tabs-wrapper";
-    const duplicatedTablsHeader = document.createElement("span");
-    duplicatedTablsHeader.className = "info-chip-text";
-    duplicatedTablsHeader.textContent = "duplicated";
-    duplicatedTabsHeaderWrapper.appendChild(duplicatedTablsHeader);
-    const duplicatedTabsCounter = document.createElement("div");
-    duplicatedTabsCounter.className = "chips-left-circle";
-    const duplicatedCountText = document.createElement("span");
-    duplicatedCountText.setAttribute("id", "duplicated-tabs-counter");
-    duplicatedCountText.className = "chips-left-circle-text";
-    duplicatedTabsCounter.appendChild(duplicatedCountText);
-    duplicatedTabsHeaderWrapper.appendChild(duplicatedTabsCounter);
-
-    const duplicatedTabsMenuIcon = document.createElement("span");
-    duplicatedTabsMenuIcon.setAttribute("id", "duplicated-tabs-menu-icon");
-    duplicatedTabsMenuIcon.textContent = "more_vert";
-    duplicatedTabsMenuIcon.className = "material-icons popup-menu-icon";
-    duplicatedTabsHeaderWrapper.appendChild(duplicatedTabsMenuIcon);
-    duplicatedTabsHeaderWrapper.addEventListener("click", showDuplicatedTabs);
-
-    const duplicatedTabsMenu = document.createElement("div");
-    duplicatedTabsMenu.className = "popup-menu";
-    duplicatedTabsMenu.setAttribute("id", "duplicated-tabs-menu");
-
-    const highlightDuplicatedItem = document.createElement("div");
-    highlightDuplicatedItem.className = "popup-menu-item";
-    highlightDuplicatedItem.addEventListener(
-      "click",
-      HighLightOrUnHighLightDuplicated,
-    );
-
-    const highlightDuplicatedItemText = document.createElement("span");
-    highlightDuplicatedItemText.setAttribute("id", "duplicated-tabs-text");
-    highlightDuplicatedItemText.className = "popup-menu-item-text";
-    highlightDuplicatedItemText.textContent = "highlight duplicated";
-
-    highlightDuplicatedItem.appendChild(highlightDuplicatedItemText);
-
-    const removeDuplicatedItem = document.createElement("div");
-    removeDuplicatedItem.className = "popup-menu-item";
-    removeDuplicatedItem.addEventListener("click", RemoveDuplicated);
-    removeDuplicatedItem.sortBy = CURRENT_SORT_TYPE;
-    removeDuplicatedItem.callback = onRemoveDuplicates;
-
-    const removeDuplicatedItemText = document.createElement("span");
-    removeDuplicatedItemText.className = "popup-menu-item-text";
-    removeDuplicatedItemText.textContent = "remove duplicated";
-
-    removeDuplicatedItem.appendChild(removeDuplicatedItemText);
-
-    duplicatedTabsMenu.appendChild(highlightDuplicatedItem);
-    duplicatedTabsMenu.appendChild(removeDuplicatedItem);
-    duplicatedTabsHeaderWrapper.appendChild(duplicatedTabsMenu);
-
-    chipsHeaderWrapper.appendChild(duplicatedTabsHeaderWrapper);
-
-    // Active
-    const activeHeaderWrapper = document.createElement("div");
-    activeHeaderWrapper.className = "header-element";
-    const activeHeader = document.createElement("span");
-    activeHeader.setAttribute("id", "siteHeader");
-    activeHeader.className = "header-button";
-    activeHeader.textContent = "Active";
-    const sortIconActive = document.createElement("span");
-    sortIconActive.textContent = "sort";
-    sortIconActive.className = "material-icons sortIcon";
-    activeHeaderWrapper.style.cssText =
-      "width:15%; justify-content: end; align-items: center; cursor:pointer";
-    activeHeaderWrapper.appendChild(activeHeader);
-    activeHeaderWrapper.appendChild(sortIconActive);
-    activeHeaderWrapper.addEventListener("click", async () => {
-      Analytics.fireEvent("sort_per_last_used_clicked");
-      if (CURRENT_SORT_TYPE == "ACTIVE_ASC") CURRENT_SORT_TYPE = "ACTIVE_DESC";
-      else CURRENT_SORT_TYPE = "ACTIVE_ASC";
-      await onSortedButtonClicked(CURRENT_SORT_TYPE);
-    });
-    leftElementsHeader.appendChild(siteHeaderWrapper);
-    leftElementsHeader.appendChild(titleHeaderWrapper);
-
+    leftElementsHeader.appendChild(siteSortingButton);
+    leftElementsHeader.appendChild(titleSortingButton);
     header.appendChild(leftElementsHeader);
-    header.appendChild(chipsHeaderWrapper);
-    header.appendChild(activeHeaderWrapper);
-
+    header.appendChild(TreeViewButton());
+    header.appendChild(duplicatedTabs);
+    header.appendChild(activeSortingButton);
     wrapper.appendChild(header);
   }
   ShowChipsIfNeeded(tabs);
