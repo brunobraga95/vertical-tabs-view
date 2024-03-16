@@ -29,6 +29,24 @@ const DebounceSearchBoxTyped = (func, wait) => {
 
 export const FilterBasedOnSearchValue = async (text) => {
   let value = text.toLowerCase();
+  Array.from(document.getElementsByClassName("vertical-dots-wrapper")).forEach(
+    (dots) => {
+      dots.style.display = value !== "" ? "none" : "block";
+    },
+  );
+  Array.from(
+    document.getElementsByClassName("horizontal-dots-wrapper"),
+  ).forEach((dots) => {
+    dots.style.display = value !== "" ? "none" : "block";
+  });
+  Array.from(document.getElementsByClassName("tab-wrapper")).forEach((tab) => {
+    if (value === "") {
+      tab.classList.remove("no-margin");
+    } else {
+      tab.classList.add("no-margin");
+    }
+  });
+
   let urlList = document.getElementsByClassName("tab-wrapper");
   let firstVisibleFound = false;
   const theme =
@@ -115,6 +133,7 @@ const onKeyDownPressed = async (e) => {
       2000,
     );
   };
+
   const maybeFocusOnTab = async (tab, currentlyFocused) => {
     temporarilyRemoveHover();
     let title = tab.childNodes[0];

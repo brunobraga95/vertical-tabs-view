@@ -51,7 +51,7 @@
 }
 
 .header-button {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
   color: #333;
   font-weight: 600;
@@ -61,9 +61,9 @@
   outline: none;
 }
 
-.sortIcon {
+.headerIcon {
   color: #333;
-  font-size: 8px;
+  font-size: 6px;
   margin-left: 3px;
 }
 
@@ -120,6 +120,7 @@
 
 .tab-info-wrapper {
   width: calc(100% - 50px);
+  min-width: 100px;
   align-items: center;
   display: flex;
   justify-content: space-between;
@@ -232,7 +233,7 @@
 }
 
 .info-chip-text {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
   color: white;
   font-weight: 600;
@@ -241,7 +242,16 @@
 }
 
 .title-header-wrapper {
-  margin-left: 8px;
+  margin-left: 5px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.beta-badge {
+  position: absolute;
+  top: 10px;
+  right: -25px;
 }
 
 .chips-header-wrapper {
@@ -251,7 +261,6 @@
 .left-elements-wrapper {
   display: flex;
   align-items: center;
-  width: 20%;
 }
 
 .popup-menu-icon {
@@ -309,6 +318,7 @@
   display: flex !important;
   align-items: center;
   justify-content: space-around;
+  position: relative;
 }
 
 .tab-wrapper:hover .close-button {
@@ -419,6 +429,30 @@
   width: calc(100% - 15px);
   display: flex;
   justify-content: space-between;
-  padding: 10px 0px;
+  padding: 8px 0px 5px 0px;
   align-items: center;
+}
+
+.horizontal-dots-wrapper {
+  position: absolute;
+  height: 10px;
+  top: calc(50% - 9px);
+  left: -20px;
+  color: white;
+  top: 5px;
+  font-weight: 700;
+}
+
+.vertical-dots-wrapper {
+  position: absolute;
+  writing-mode: vertical-lr;
+  top: calc(100% + 5px);
+  left: 20px;
+  overflow: hidden;
+  color: white;
+  font-weight: 700;
+}
+
+.no-margin {
+  margin: 0px !important;
 }
