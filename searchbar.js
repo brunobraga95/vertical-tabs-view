@@ -70,7 +70,7 @@ export const FilterBasedOnSearchValue = async (text) => {
       if (tabInfo.classList.contains("focused-tab-info-wrapper")) {
         tabInfo.classList.remove("focused-tab-info-wrapper");
       }
-      tabInfo.style.backgroundColor = COLOR_SCHEMES[theme].tabWrapperColor;
+      // tabInfo.style.backgroundColor = COLOR_SCHEMES[theme].tabWrapperColor;
       tabInfo.classList.remove("focused-tab-info-wrapper");
     } else {
       url.style.cssText = url.style.cssText.replace(
@@ -85,7 +85,7 @@ export const FilterBasedOnSearchValue = async (text) => {
         if (tabInfo.classList.contains("focused-tab-info-wrapper")) {
           tabInfo.classList.remove("focused-tab-info-wrapper");
         }
-        tabInfo.style.backgroundColor = COLOR_SCHEMES[theme].tabWrapperColor;
+        // tabInfo.style.backgroundColor = COLOR_SCHEMES[theme].tabWrapperColor;
         tabInfo.classList.remove("focused-tab-info-wrapper");
       }
     }
@@ -117,7 +117,7 @@ const onKeyDownPressed = async (e) => {
         const tab = tabsList[i];
         let title = tab.childNodes[0];
         title.classList.remove("focused-tab-info-wrapper");
-        title.style.backgroundColor = COLOR_SCHEMES[theme].tabWrapperColor;
+        title.style.removeProperty("background-color");
       }
     }
   };

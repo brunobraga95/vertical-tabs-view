@@ -268,65 +268,76 @@ const GroupTabsBySiteButton = () => {
     "group sites",
     "sort",
     async () => {
+      chrome.permissions.request(
+        {
+          permissions: ["tabGroups"],
+        },
+        async (granted) => {
+          // The callback argument will be true if the user granted the permissions.
+          if (granted) {
+            Analytics.fireEvent("group_tabs_by_site");
+            const getSiteFromTabUrl = (tab) => {
+              let site = tab?.url ? new URL(tab.url) : { hostname: "" };
+              site = site.hostname.replace("www.", "");
+              return site.split(".").length > 2
+                ? site.split(".")[0] + "." + site.split(".")[1]
+                : site.split(".")[0];
+            };
 
-      chrome.permissions.request({
-        permissions: ['tabGroups'],
-      }, async (granted) => {
-        // The callback argument will be true if the user granted the permissions.
-        if (granted) {
-          Analytics.fireEvent("group_tabs_by_site");
-          const getSiteFromTabUrl = (tab) => {
-            let site = tab?.url ? new URL(tab.url) : { hostname: "" };
-            site = site.hostname.replace("www.", "");
-            return site.split(".").length > 2 ? site.split(".")[0] + "." + site.split(".")[1] : site.split(".")[0];
-          }
-    
-          // first add to existing groups
-          const groups = await chrome.tabGroups.query({}) || [];
-          let existingGroupTitleToId = {};
-          for(let group of groups) {
-            existingGroupTitleToId[group.title] = group.id;
-          }
-          let tabs = await chrome.tabs.query({});
-          let sites = {};
-          for(let tab of tabs) {
-            if(tab.groupId === -1) {
-              const site = getSiteFromTabUrl(tab);
-              if(existingGroupTitleToId[site]) {
-                await chrome.tabs.group({tabIds: [tab.id], groupId: existingGroupTitleToId[site]});
-              } else {
-                sites[site] = !sites[site] ? 1 : sites[site] + 1;
+            // first add to existing groups
+            const groups = (await chrome.tabGroups.query({})) || [];
+            let existingGroupTitleToId = {};
+            for (let group of groups) {
+              existingGroupTitleToId[group.title] = group.id;
+            }
+            let tabs = await chrome.tabs.query({});
+            let sites = {};
+            for (let tab of tabs) {
+              if (tab.groupId === -1) {
+                const site = getSiteFromTabUrl(tab);
+                if (existingGroupTitleToId[site]) {
+                  await chrome.tabs.group({
+                    tabIds: [tab.id],
+                    groupId: existingGroupTitleToId[site],
+                  });
+                } else {
+                  sites[site] = !sites[site] ? 1 : sites[site] + 1;
+                }
               }
             }
-          }
-    
-          const tabsToGroup = {};
-          for(let tab of tabs) {
-            const site = getSiteFromTabUrl(tab);
-            if(sites[site] > 1 && tab.groupId === -1) {
-              if(!tabsToGroup[site]) {
-                tabsToGroup[site] = { "name": site, tabs: [tab.id] };
-              } else {
-                tabsToGroup[site].tabs.push(tab.id);
+
+            const tabsToGroup = {};
+            for (let tab of tabs) {
+              const site = getSiteFromTabUrl(tab);
+              if (sites[site] > 1 && tab.groupId === -1) {
+                if (!tabsToGroup[site]) {
+                  tabsToGroup[site] = { name: site, tabs: [tab.id] };
+                } else {
+                  tabsToGroup[site].tabs.push(tab.id);
+                }
               }
-            };
+            }
+            for (let site in tabsToGroup) {
+              const randomColor = () => {
+                const colors = Object.keys(chrome.tabGroups.Color);
+                const colorKey =
+                  colors[Math.floor(Math.random() * colors.length)];
+                return chrome.tabGroups.Color[colorKey];
+              };
+
+              const groupdId = await chrome.tabs.group({
+                tabIds: tabsToGroup[site].tabs,
+              });
+              await chrome.tabGroups.update(groupdId, {
+                title: site,
+                color: randomColor(),
+              });
+            }
+          } else {
+            Analytics.fireEvent("group_tabs_by_site_permission_declined");
           }
-          for(let site in tabsToGroup) {
-           const randomColor = () => {
-             const colors = Object.keys(chrome.tabGroups.Color);
-             const colorKey = colors[Math.floor(Math.random()*colors.length)];
-             return chrome.tabGroups.Color[colorKey];
-           }
-    
-           const groupdId = await chrome.tabs.group({tabIds: tabsToGroup[site].tabs});
-           await chrome.tabGroups.update(groupdId, {
-            title: site,
-            color: randomColor()});
-          }
-        } else {
-          Analytics.fireEvent("group_tabs_by_site_permission_declined");
-        }
-      });
+        },
+      );
     },
     "groupSitesHeader",
     "groupSitesHeaderIcon",
@@ -352,11 +363,11 @@ const TreeViewButton = () => {
   let button = AddIconButton(
     "tree view",
     "account_tree",
-    async () => {     
+    async () => {
       const viewMode = await getViewMode();
       const newViewMode = viewMode === "list" ? "tree" : "list";
       setViewMode(newViewMode);
-      Analytics.fireEvent("view_mode_" + newViewMode); 
+      Analytics.fireEvent("view_mode_" + newViewMode);
     },
     "treeHeader",
     "treeHeaderIcon",

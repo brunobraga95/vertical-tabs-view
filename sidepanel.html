@@ -67,22 +67,17 @@
           </div>
         </div>
         <div class="search">
-          <input id="search-bar" type="text" class="searchTerm" />
-          <button
-            id="search-bar-button"
-            type="submit"
-            tabindex="-1"
-            class="searchButton"
-          >
-            <span class="material-icons">search</span>
-          </button>
+          <span class="material-icons search-icon">search</span>
+          <input
+            id="search-bar"
+            type="text"
+            class="searchTerm"
+            placeholder="search..."
+          />
         </div>
         <div id="header" style="width: 100%"></div>
       </div>
-      <div
-        id="tabs-list"
-        style="display: flex; flex-direction: column"
-      ></div>
+      <div id="tabs-list" style="display: flex; flex-direction: column"></div>
     </div>
     <script type="module" src="popup.js" charset="utf-8"></script>
     <script type="module" src="colors.js" charset="utf-8"></script>

@@ -7,7 +7,13 @@ const NEW_TAB_URL = "chrome://newtab/";
 const EXTENSIONS_URL = "chrome://extensions/";
 
 const addParentTabMap = (tab) => {
-  if (tab.pendingUrl === NEW_TAB_URL || tab.url === NEW_TAB_URL || tab.url == EXTENSIONS_URL || !tab.openerTabId) return;
+  if (
+    tab.pendingUrl === NEW_TAB_URL ||
+    tab.url === NEW_TAB_URL ||
+    tab.url == EXTENSIONS_URL ||
+    !tab.openerTabId
+  )
+    return;
 
   chrome.storage.local.get(["parentTabMap"], (parentTabMap) => {
     const updatedParentTabMap = { ...(parentTabMap.parentTabMap || {}) };
@@ -146,7 +152,7 @@ function init() {
       if (tab.url === NEW_TAB_URL) {
         removeTabIdFromParentTabMap(tabId);
       }
-  }
+    }
     if (
       changeInfo.status === "loading" ||
       changeInfo.title ||

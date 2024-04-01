@@ -141,19 +141,19 @@ export const CreateTabElement = (
   tabInfoWrapper.tabId = tab.id;
 
   const siteWrapper = document.createElement("div");
-  siteWrapper.style.cssText = "display:flex; width: 30px;overflow: hidden;";
+  siteWrapper.className = "site-wrapper";
   const site = document.createElement("a");
   site.className = "site-link";
-    const favIcon = document.createElement("img");
-    favIcon.setAttribute("id", "tab_icon_" + tab.id);
-    favIcon.src = tab.favIconUrl || "";
-    favIcon.style.cssText = "width: 20px;height: 20px;margin-right: 5px;";
-    siteWrapper.appendChild(favIcon);
-    siteWrapper.appendChild(site);
+  const favIcon = document.createElement("img");
+  favIcon.setAttribute("id", "tab_icon_" + tab.id);
+  favIcon.src = tab.favIconUrl || "";
+  favIcon.style.cssText = "width: 20px;height: 20px;";
+  siteWrapper.appendChild(favIcon);
+  siteWrapper.appendChild(site);
 
   const titleAndUpdatedAgoWrapper = document.createElement("div");
   titleAndUpdatedAgoWrapper.style.cssText =
-    "display:flex; width: calc(100% - 48px); flex-direction: column;";
+    "display:flex; width: calc(100% - 48px); flex-direction: column; margin-left: 5px";
 
   const titleWrapper = document.createElement("div");
   titleWrapper.style.cssText = "display:flex; width: 100%";
@@ -193,7 +193,7 @@ export const CreateTabElement = (
     // TODO: Decide if I want to keep this.
     // tabInfoWrapper.appendChild(CreateTabMoreVertMenu(tab.id));
   }
-
+  console.log(siteWrapper.style);
   const closeTab = document.createElement("div");
   closeTab.className = "close-button";
   const closeTabIcon = document.createElement("span");
@@ -219,9 +219,7 @@ export const GetAllTabInfoWrappers = () =>
     : [];
 
 export const UnselectTabInfoWrapper = async (tabInfoWrapper) => {
-  const theme =
-    (await chrome.storage.local.get("theme")).theme || "classic_mode";
-  tabInfoWrapper.style.backgroundColor = COLOR_SCHEMES[theme].tabWrapperColor;
+  tabInfoWrapper.style.removeProperty("background-color");
   tabInfoWrapper.classList.remove("focused-tab-info-wrapper");
 };
 export const ToogleTabInfoWrapperSelected = async (tabInfoWrapper) => {

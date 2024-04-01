@@ -6,8 +6,7 @@
 
 .searchTerm {
   width: 100%;
-  border: 3px solid #00b4cc;
-  border-right: none;
+  border: none;
   padding: 5px;
   height: 15px;
   border-radius: 5px 0 0 5px;
@@ -20,16 +19,9 @@
   color: #757b86;
 }
 
-.searchButton {
-  width: 40px;
-  height: 31px;
-  border: 1px solid #00b4cc;
-  background: #00b4cc;
-  text-align: center;
-  color: #fff;
-  border-radius: 0 5px 5px 0;
-  cursor: default;
-  font-size: 15px;
+.search-icon {
+  top: 2px;
+  font-size: 5px;
 }
 
 .duplicated-tabs-wrapper {

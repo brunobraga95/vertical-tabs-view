@@ -27,7 +27,6 @@ export async function LoadScheme() {
     (await chrome.storage.local.get("theme")).theme || "classic_mode";
   const backgroundColor = COLOR_SCHEMES[theme].backgroundColor;
   const titleColor = COLOR_SCHEMES[theme]?.titleColor || "";
-  const tabWrapperColor = COLOR_SCHEMES[theme]?.tabWrapperColor || "";
   const urlTitleColor = COLOR_SCHEMES[theme]?.urlTitleColor || "";
   const updateAgoTextColor = COLOR_SCHEMES[theme]?.updateAgoTextColor || "";
   const primaryColor = COLOR_SCHEMES[theme].primaryColor;
@@ -44,11 +43,6 @@ export async function LoadScheme() {
     COLOR_SCHEMES[theme].themeSectionColor;
   document.getElementById("toggle_theme_icon").style.color =
     COLOR_SCHEMES[theme].themeSectionColor;
-  document.getElementById("search-bar").style.border =
-    "3px solid " + primaryColor;
-  document.getElementById("search-bar-button").style.border =
-    "1px solid " + primaryColor;
-  document.getElementById("search-bar-button").style.background = primaryColor;
   document.getElementById("body").style.backgroundColor = backgroundColor;
   document.getElementById("top-header").style.backgroundColor = backgroundColor;
   document.getElementById("search-bar").style.backgroundColor = backgroundColor;
@@ -67,24 +61,24 @@ export async function LoadScheme() {
     (headerButton) => {
       if (headerButton.id === "treeHeader") {
         if (viewMode === "tree") {
-          headerButton.style.setProperty("color", "#3dc6d8");
+          headerButton.style.setProperty("color", primaryColor);
         } else {
           headerButton.style.color = titleColor;
         }
       }
       if (headerButton.id === "activeHeader") {
         if (sortBy === "ACTIVE_ASC" || sortBy === "ACTIVE_DESC") {
-          headerButton.style.setProperty("color", "#3dc6d8");
+          headerButton.style.setProperty("color", primaryColor);
         } else {
           headerButton.style.color = titleColor;
         }
       }
       if (headerButton.id === "groupSitesHeader") {
-          headerButton.style.color = titleColor;
+        headerButton.style.color = titleColor;
       }
       if (headerButton.id === "siteHeader") {
         if (sortBy === "SITE_ASC" || sortBy == "SITE_DESC") {
-          headerButton.style.setProperty("color", "#3dc6d8");
+          headerButton.style.setProperty("color", primaryColor);
         } else {
           headerButton.style.color = titleColor;
         }
@@ -92,27 +86,30 @@ export async function LoadScheme() {
     },
   );
 
+  Array.from(document.getElementsByClassName("search-icon")).forEach((icon) => {
+    icon.style.color = primaryColor;
+  });
   Array.from(document.getElementsByClassName("headerIcon")).forEach((icon) => {
     if (icon.id === "treeHeaderIcon") {
       if (viewMode === "tree") {
-        icon.style.setProperty("color", "#3dc6d8");
+        icon.style.setProperty("color", primaryColor);
       } else {
         icon.style.color = titleColor;
       }
     }
     if (icon.id === "activeHeaderIcon") {
       if (sortBy === "ACTIVE_ASC" || sortBy === "ACTIVE_DESC") {
-        icon.style.setProperty("color", "#3dc6d8");
+        icon.style.setProperty("color", primaryColor);
       } else {
         icon.style.color = titleColor;
       }
     }
     if (icon.id === "groupSitesHeaderIcon") {
-        icon.style.color = titleColor;
+      icon.style.color = titleColor;
     }
     if (icon.id === "siteHeaderIcon") {
       if (sortBy === "SITE_ASC" || sortBy == "SITE_DESC") {
-        icon.style.setProperty("color", "#3dc6d8");
+        icon.style.setProperty("color", primaryColor);
       } else {
         icon.style.color = titleColor;
       }
@@ -138,14 +135,25 @@ export async function LoadScheme() {
   );
   Array.from(document.getElementsByClassName("tab-info-wrapper")).forEach(
     (tabInfoWrapper) => {
-      tabInfoWrapper.style.backgroundColor = tabWrapperColor;
+      tabInfoWrapper.classList.add(
+        theme === "dark_mode"
+          ? "tab-info-wrapper-dark-mode"
+          : "tab-info-wrapper-white-mode",
+      );
+      tabInfoWrapper.classList.remove(
+        theme !== "dark_mode"
+          ? "tab-info-wrapper-dark-mode"
+          : "tab-info-wrapper-white-mode",
+      );
+
+      // tabInfoWrapper.style.backgroundColor = tabWrapperColor;
     },
   );
   Array.from(
     document.getElementsByClassName("focused-tab-info-wrapper"),
   ).forEach((focusedTab, i) => {
-    if (i === 0)
-      focusedTab.style.backgroundColor = COLOR_SCHEMES[theme].focusTabColor;
+    // if (i === 0)
+    // focusedTab.style.backgroundColor = COLOR_SCHEMES[theme].focusTabColor;
   });
   Array.from(document.getElementsByClassName("url-title-text")).forEach(
     (urlTitle) => {
@@ -160,6 +168,15 @@ export async function LoadScheme() {
   Array.from(document.getElementsByClassName("more-vert-button")).forEach(
     (moreVertButton) => {
       moreVertButton.style.color = updateAgoTextColor;
+    },
+  );
+  Array.from(document.getElementsByClassName("site-wrapper")).forEach(
+    (siteWrapper) => {
+      if (viewMode !== "list") {
+        console.log("loading...");
+        siteWrapper.style.backgroundColor =
+          theme === "dark_mode" ? "#404040" : "#eee";
+      }
     },
   );
 }
@@ -242,16 +259,16 @@ const sortTabsAndAddMetadata = async (sortBy) => {
   tabs.forEach((tab, i) => (tabIndexMap[tab.id] = i));
   // TODO move to its own method.
   // If the tab does not even exist anymore, delete it from the tabsMetadata.
-  for(const tabId in parentTabMap) {
-    if(tabIndexMap[tabId] === undefined || tabIndexMap[parentTabMap[tabId]] === undefined) {
+  for (const tabId in parentTabMap) {
+    if (
+      tabIndexMap[tabId] === undefined ||
+      tabIndexMap[parentTabMap[tabId]] === undefined
+    ) {
       delete parentTabMap[tabId];
     }
   }
 
-  chrome.storage.local.set(
-    { parentTabMap: parentTabMap },
-    function () {},
-  );
+  chrome.storage.local.set({ parentTabMap: parentTabMap }, function () {});
 
   let sortedTabs = tabs.map((tab) => {
     let site = tab?.url ? new URL(tab.url) : { hostname: "" };
@@ -283,7 +300,9 @@ const CreateTabsList = async () => {
     // Locked, reschedule call.
     setTimeout(
       () => CreateTabsList(),
-      3000 - (now - LOCKED_INFO.timestamp - 3000) + Math.floor(Math.random() * 10) * 50,
+      3000 -
+        (now - LOCKED_INFO.timestamp - 3000) +
+        Math.floor(Math.random() * 10) * 50,
     );
     return;
   }
@@ -410,8 +429,8 @@ chrome.storage.onChanged.addListener(async (changes, namespace) => {
       }
       continue;
     }
-    
-    if(key === "viewMode") {
+
+    if (key === "viewMode") {
       await CreateTabsList();
       const currentTab = await getCurrentTab();
       if (currentTab) FocusonTabWithId(currentTab.id);
@@ -420,7 +439,7 @@ chrome.storage.onChanged.addListener(async (changes, namespace) => {
     if (!isNaN(key)) {
       // If deleted scroll to top.
       const deleted = !isNaN(key) && oldValue && !newValue;
-      if(deleted && !deletionHandled) {
+      if (deleted && !deletionHandled) {
         const deletedTab = GetTabWrapperFromID(key);
         const sibling =
           deletedTab.nextElementSibling || deletedTab.previousElementSibling;
@@ -437,7 +456,7 @@ chrome.storage.onChanged.addListener(async (changes, namespace) => {
           block: "center",
           behavior: "instant",
         });
-        deletionHandled = true
+        deletionHandled = true;
       }
     }
   }
