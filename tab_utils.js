@@ -153,7 +153,7 @@ export const CreateTabElement = (
 
   const titleAndUpdatedAgoWrapper = document.createElement("div");
   titleAndUpdatedAgoWrapper.style.cssText =
-    "display:flex; width: calc(100% - 30px); flex-direction: column;";
+    "display:flex; width: calc(100% - 48px); flex-direction: column;";
 
   const titleWrapper = document.createElement("div");
   titleWrapper.style.cssText = "display:flex; width: 100%";
@@ -203,9 +203,8 @@ export const CreateTabElement = (
   closeTab.addEventListener("click", onCloseTabEvent);
   closeTab.tabId = tab.id;
   closeTab.callback = () => refetchTabs();
-
+  tabInfoWrapper.appendChild(closeTab);
   tabWrapper.appendChild(tabInfoWrapper);
-  tabWrapper.appendChild(closeTab);
   return tabWrapper;
 };
 

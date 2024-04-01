@@ -85,7 +85,6 @@
   position: relative;
   width: 18px;
   height: 18px;
-  top: -4px;
   border-radius: 100% !important;
   visibility: hidden;
 }
@@ -127,7 +126,6 @@
   margin-bottom: 8px;
   background-color: #ffffff;
   padding: 3px 15px;
-  border-radius: 6px;
   position: relative;
 }
 
