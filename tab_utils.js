@@ -190,7 +190,8 @@ export const CreateTabElement = (
   tabInfoWrapper.appendChild(siteWrapper);
   tabInfoWrapper.appendChild(titleAndUpdatedAgoWrapper);
   if (viewMode === "list") {
-    tabInfoWrapper.appendChild(CreateTabMoreVertMenu(tab.id));
+    // TODO: Decide if I want to keep this.
+    // tabInfoWrapper.appendChild(CreateTabMoreVertMenu(tab.id));
   }
 
   const closeTab = document.createElement("div");

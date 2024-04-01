@@ -18,7 +18,6 @@ export const removeFocusStyleFromTabInfo = (tab) =>
 export const getTabById = (id) =>
   document.getElementById("tab_info_wrapper_" + id);
 
-export const getIdFromTab = (tab) => {};
 export const CloseAllTabsWithIds = async (ids) => {
   // Only remove tabs that exist.
   const tabs = await chrome.tabs.query({});

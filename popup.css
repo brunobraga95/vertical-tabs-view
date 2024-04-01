@@ -387,6 +387,7 @@
   position: relative;
   left: 5px;
   margin: 0px 20px;
+  display: none;
 }
 
 #donate_theme_icon {
@@ -405,7 +406,6 @@
 .suggestions-wrapper {
   position: relative;
   text-decoration: none;
-  left: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -455,4 +455,8 @@
 
 .no-margin {
   margin: 0px !important;
+}
+
+div.title-header-wrapper:active > span {
+    color: #3dc6d8 !important;
 }

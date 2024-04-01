@@ -68,10 +68,8 @@ export async function LoadScheme() {
       if (headerButton.id === "treeHeader") {
         if (viewMode === "tree") {
           headerButton.style.setProperty("color", "#3dc6d8");
-          document.getElementById("beta-badge").style.color = "#3dc6d8";
         } else {
           headerButton.style.color = titleColor;
-          document.getElementById("beta-badge").style.color = titleColor;
         }
       }
       if (headerButton.id === "activeHeader") {
@@ -81,12 +79,8 @@ export async function LoadScheme() {
           headerButton.style.color = titleColor;
         }
       }
-      if (headerButton.id === "titleHeader") {
-        if (sortBy === "TITLE_ASC" || sortBy === "TITLE_DESC") {
-          headerButton.style.setProperty("color", "#3dc6d8");
-        } else {
+      if (headerButton.id === "groupSitesHeader") {
           headerButton.style.color = titleColor;
-        }
       }
       if (headerButton.id === "siteHeader") {
         if (sortBy === "SITE_ASC" || sortBy == "SITE_DESC") {
@@ -113,12 +107,8 @@ export async function LoadScheme() {
         icon.style.color = titleColor;
       }
     }
-    if (icon.id === "titleHeaderIcon") {
-      if (sortBy === "TITLE_ASC" || sortBy === "TITLE_DESC") {
-        icon.style.setProperty("color", "#3dc6d8");
-      } else {
+    if (icon.id === "groupSitesHeaderIcon") {
         icon.style.color = titleColor;
-      }
     }
     if (icon.id === "siteHeaderIcon") {
       if (sortBy === "SITE_ASC" || sortBy == "SITE_DESC") {
