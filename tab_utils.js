@@ -57,7 +57,7 @@ export const AddVerticalDotsForTreeLayout = (parentTab, children = []) => {
     (lowestChildTab.getBoundingClientRect().bottom -
       lowestChildTab.getBoundingClientRect().top) /
       2 -
-    8;
+    4;
   verticalDotsWrapper.style.height = `${expectedHeight}px`;
   tabHtml.appendChild(verticalDotsWrapper);
   for (let i = 0; i < 1000; i++) {
@@ -153,7 +153,7 @@ export const CreateTabElement = (
 
   const titleAndUpdatedAgoWrapper = document.createElement("div");
   titleAndUpdatedAgoWrapper.style.cssText =
-    "display:flex; width: calc(100% - 48px); flex-direction: column; margin-left: 5px";
+    "display:flex; width: calc(100% - 48px); flex-direction: column; margin-left: 7px";
 
   const titleWrapper = document.createElement("div");
   titleWrapper.style.cssText = "display:flex; width: 100%";
@@ -193,7 +193,6 @@ export const CreateTabElement = (
     // TODO: Decide if I want to keep this.
     // tabInfoWrapper.appendChild(CreateTabMoreVertMenu(tab.id));
   }
-  console.log(siteWrapper.style);
   const closeTab = document.createElement("div");
   closeTab.className = "close-button";
   const closeTabIcon = document.createElement("span");

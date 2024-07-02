@@ -26,7 +26,7 @@ export const setSortBy = async (sortBy, scrollToTop = true) => {
 
 export const getSortBy = async () => {
   let context = await chrome.storage.local.get("lastCreateTabsListContext");
-  const sortBy = context?.lastCreateTabsListContext?.sortBy || "ACTIVE_ASC";
+  const sortBy = context?.lastCreateTabsListContext?.sortBy || "NONE";
   return sortBy;
 };
 

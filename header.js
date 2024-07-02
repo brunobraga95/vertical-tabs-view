@@ -4,6 +4,8 @@ import { getViewMode, setViewMode, getSortBy } from "./storage.js";
 
 let DUPLICATED_TABS_MAP = {};
 
+document.getElementById("create-new-tab-button-wrapper").onclick = () => chrome.tabs.create({});
+
 const closeDuplicatedTabsMenu = () => {
   const duplicatedTabsMenu = document.getElementById("duplicated-tabs-menu");
   const duplicatedTabsMenuIcon = document.getElementById(
@@ -54,18 +56,40 @@ document.addEventListener("click", (evt) => {
   }
 });
 
-document.getElementById("suggestions_theme_icon").onclick = () =>
-  Analytics.fireEvent("suggestions_button_clicked");
-document.getElementById("donate_theme_icon").onclick = () =>
-  Analytics.fireEvent("donate_button_clicked");
-document.getElementById("toggle_theme_icon").onclick = async () => {
-  Analytics.fireEvent("event_theme_toogle_clicked");
-  const upToDateMode =
-    (await chrome.storage.local.get("theme")).theme || "classic_mode";
-  let entry = {};
-  entry["theme"] =
-    upToDateMode === "classic_mode" ? "dark_mode" : "classic_mode";
-  chrome.storage.local.set(entry, function () {});
+const getHeaderMoreVert = () => {
+  const popups = document.getElementsByClassName("more-vert-header-popup");
+  if (popups.length !== 1) return null;
+  return popups[0];
+};
+
+const addItemToMoreVertMenu = (text, onClick, id) => {
+  const popup = getHeaderMoreVert();
+  if (!popup) return;
+
+  const itemWrapper = document.createElement("div");
+  itemWrapper.className = "more-vert-icon-item-wrapper";
+  itemWrapper.textContent = text;
+  itemWrapper.id = id;
+  itemWrapper.addEventListener("click", onClick);
+  popup.appendChild(itemWrapper);
+};
+
+document.getElementById("more-vert-icon-header").onclick = async (e) => {
+  e.stopPropagation();
+  const popup = getHeaderMoreVert();
+  if (!popup) return;
+
+  const isVisible = popup.style.visibility === "visible";
+  popup.style.setProperty("visibility", !isVisible ? "visible" : "hidden");
+  Analytics.fireEvent("more-vert-icon-clicked-header");
+};
+
+document.getElementById("body").onclick = async () => {
+  const popup = getHeaderMoreVert();
+  if (!popup) return;
+
+  if (popup.style.visibility === "visible")
+    popup.style.setProperty("visibility", "hidden");
 };
 
 const showDuplicatedTabs = () => {
@@ -223,185 +247,56 @@ export const ShowChipsIfNeeded = (tabs) => {
   }
 
   if (tabs.length > 0) {
-    const openTabsWrapper = document.getElementById("open-tabs-wrapper");
     const openTabsCounter = document.getElementById("open-tabs-counter");
-
-    openTabsWrapper.style.cssText += " display: flex;";
     openTabsCounter.textContent = tabs.length.toString();
   }
 };
 
-const AddIconButton = (label, icon, onClick, elementId, iconId) => {
-  const iconButton = document.createElement("div");
-  iconButton.className = "header-element title-header-wrapper";
-  const iconLabel = document.createElement("span");
-  iconLabel.setAttribute("id", elementId);
-  iconLabel.className = "header-button";
-  iconLabel.textContent = label;
-  const iconElement = document.createElement("span");
-  iconElement.textContent = icon;
-  iconElement.setAttribute("id", iconId);
-  iconElement.className = "material-icons headerIcon";
-  iconButton.appendChild(iconLabel);
-  iconButton.appendChild(iconElement);
-  iconButton.addEventListener("click", () => onClick(iconButton));
-  return iconButton;
+const HeaderChipWrapper = (title, topLevelId, leftTextId, onClick) => {
+  const chipsHeaderWrapper = document.createElement("div");
+  chipsHeaderWrapper.className = "chips-header-wrapper";
+  const headerChipWrapper = document.createElement("div");
+  headerChipWrapper.setAttribute("id", topLevelId);
+  headerChipWrapper.className = "info-chip header-chip-wrapper";
+  const chipHeaderText = document.createElement("span");
+  chipHeaderText.className = "info-chip-text";
+  chipHeaderText.textContent = title;
+  headerChipWrapper.appendChild(chipHeaderText);
+  const headerChipLeftText = document.createElement("div");
+  headerChipLeftText.className = "chips-left-circle";
+  const headerChipCounter = document.createElement("span");
+  headerChipCounter.setAttribute("id", leftTextId);
+  headerChipCounter.className = "chips-left-circle-text";
+  headerChipLeftText.appendChild(headerChipCounter);
+  headerChipWrapper.appendChild(headerChipLeftText);
+
+  if (onClick) {
+    const chipHeaderIcon = document.createElement("span");
+    chipHeaderIcon.setAttribute("id", "duplicated-tabs-menu-icon");
+    chipHeaderIcon.textContent = "more_vert";
+    chipHeaderIcon.className = "material-icons popup-menu-icon";
+    headerChipWrapper.appendChild(chipHeaderIcon);
+    headerChipWrapper.addEventListener("click", onClick);
+  }
+  return headerChipWrapper;
 };
 
-const SiteSortingButton = (onSortedButtonClicked, currentSortMode) => {
-  return AddIconButton(
-    "site",
-    "sort",
-    async () => {
-      Analytics.fireEvent("sort_per_domain_clicked");
-      if (currentSortMode == "SITE_ASC") currentSortMode = "SITE_DESC";
-      else currentSortMode = "SITE_ASC";
-      await onSortedButtonClicked(currentSortMode);
-    },
-    "siteHeader",
-    "siteHeaderIcon",
+const getTabsCounter = () => {
+  return HeaderChipWrapper(
+    "open tabs",
+    "tabs-counter-wrapper",
+    "open-tabs-counter",
   );
-};
-
-const GroupTabsBySiteButton = () => {
-  return AddIconButton(
-    "group sites",
-    "sort",
-    async () => {
-      chrome.permissions.request(
-        {
-          permissions: ["tabGroups"],
-        },
-        async (granted) => {
-          // The callback argument will be true if the user granted the permissions.
-          if (granted) {
-            Analytics.fireEvent("group_tabs_by_site");
-            const getSiteFromTabUrl = (tab) => {
-              let site = tab?.url ? new URL(tab.url) : { hostname: "" };
-              site = site.hostname.replace("www.", "");
-              return site.split(".").length > 2
-                ? site.split(".")[0] + "." + site.split(".")[1]
-                : site.split(".")[0];
-            };
-
-            // first add to existing groups
-            const groups = (await chrome.tabGroups.query({})) || [];
-            let existingGroupTitleToId = {};
-            for (let group of groups) {
-              existingGroupTitleToId[group.title] = group.id;
-            }
-            let tabs = await chrome.tabs.query({});
-            let sites = {};
-            for (let tab of tabs) {
-              if (tab.groupId === -1) {
-                const site = getSiteFromTabUrl(tab);
-                if (existingGroupTitleToId[site]) {
-                  await chrome.tabs.group({
-                    tabIds: [tab.id],
-                    groupId: existingGroupTitleToId[site],
-                  });
-                } else {
-                  sites[site] = !sites[site] ? 1 : sites[site] + 1;
-                }
-              }
-            }
-
-            const tabsToGroup = {};
-            for (let tab of tabs) {
-              const site = getSiteFromTabUrl(tab);
-              if (sites[site] > 1 && tab.groupId === -1) {
-                if (!tabsToGroup[site]) {
-                  tabsToGroup[site] = { name: site, tabs: [tab.id] };
-                } else {
-                  tabsToGroup[site].tabs.push(tab.id);
-                }
-              }
-            }
-            for (let site in tabsToGroup) {
-              const randomColor = () => {
-                const colors = Object.keys(chrome.tabGroups.Color);
-                const colorKey =
-                  colors[Math.floor(Math.random() * colors.length)];
-                return chrome.tabGroups.Color[colorKey];
-              };
-
-              const groupdId = await chrome.tabs.group({
-                tabIds: tabsToGroup[site].tabs,
-              });
-              await chrome.tabGroups.update(groupdId, {
-                title: site,
-                color: randomColor(),
-              });
-            }
-          } else {
-            Analytics.fireEvent("group_tabs_by_site_permission_declined");
-          }
-        },
-      );
-    },
-    "groupSitesHeader",
-    "groupSitesHeaderIcon",
-  );
-};
-
-const ActiveSortingButton = (onSortedButtonClicked, currentSortMode) => {
-  return AddIconButton(
-    "active",
-    "sort",
-    async () => {
-      Analytics.fireEvent("sort_per_last_used_clicked");
-      if (currentSortMode == "ACTIVE_ASC") currentSortMode = "ACTIVE_DESC";
-      else currentSortMode = "ACTIVE_ASC";
-      await onSortedButtonClicked(currentSortMode);
-    },
-    "activeHeader",
-    "activeHeaderIcon",
-  );
-};
-
-const TreeViewButton = () => {
-  let button = AddIconButton(
-    "tree view",
-    "account_tree",
-    async () => {
-      const viewMode = await getViewMode();
-      const newViewMode = viewMode === "list" ? "tree" : "list";
-      setViewMode(newViewMode);
-      Analytics.fireEvent("view_mode_" + newViewMode);
-    },
-    "treeHeader",
-    "treeHeaderIcon",
-  );
-
-  return button;
 };
 
 const DuplicatedTabs = (onRemoveDuplicates) => {
-  const chipsHeaderWrapper = document.createElement("div");
-  chipsHeaderWrapper.className = "chips-header-wrapper";
-  // duplicated tabs
-  const duplicatedTabsHeaderWrapper = document.createElement("div");
-  duplicatedTabsHeaderWrapper.setAttribute("id", "duplicated-tabs-wrapper");
-  duplicatedTabsHeaderWrapper.className = "info-chip duplicated-tabs-wrapper";
-  const duplicatedTablsHeader = document.createElement("span");
-  duplicatedTablsHeader.className = "info-chip-text";
-  duplicatedTablsHeader.textContent = "duplicated";
-  duplicatedTabsHeaderWrapper.appendChild(duplicatedTablsHeader);
-  const duplicatedTabsCounter = document.createElement("div");
-  duplicatedTabsCounter.className = "chips-left-circle";
-  const duplicatedCountText = document.createElement("span");
-  duplicatedCountText.setAttribute("id", "duplicated-tabs-counter");
-  duplicatedCountText.className = "chips-left-circle-text";
-  duplicatedTabsCounter.appendChild(duplicatedCountText);
-  duplicatedTabsHeaderWrapper.appendChild(duplicatedTabsCounter);
-
-  const duplicatedTabsMenuIcon = document.createElement("span");
-  duplicatedTabsMenuIcon.setAttribute("id", "duplicated-tabs-menu-icon");
-  duplicatedTabsMenuIcon.textContent = "more_vert";
-  duplicatedTabsMenuIcon.className = "material-icons popup-menu-icon";
-  duplicatedTabsHeaderWrapper.appendChild(duplicatedTabsMenuIcon);
-  duplicatedTabsHeaderWrapper.addEventListener("click", showDuplicatedTabs);
-
+  const chipsHeaderWrapper = HeaderChipWrapper(
+    "duplicated",
+    "duplicated-tabs-wrapper",
+    "duplicated-tabs-counter",
+    showDuplicatedTabs,
+  );
+  chipsHeaderWrapper.style.cssText += " display: none;";
   const duplicatedTabsMenu = document.createElement("div");
   duplicatedTabsMenu.className = "popup-menu";
   duplicatedTabsMenu.setAttribute("id", "duplicated-tabs-menu");
@@ -433,10 +328,152 @@ const DuplicatedTabs = (onRemoveDuplicates) => {
 
   duplicatedTabsMenu.appendChild(highlightDuplicatedItem);
   duplicatedTabsMenu.appendChild(removeDuplicatedItem);
-  duplicatedTabsHeaderWrapper.appendChild(duplicatedTabsMenu);
+  chipsHeaderWrapper.appendChild(duplicatedTabsMenu);
 
-  chipsHeaderWrapper.appendChild(duplicatedTabsHeaderWrapper);
   return chipsHeaderWrapper;
+};
+
+const createMoreVertPopupElements = async (
+  currentSortMode,
+  onSortedButtonClicked,
+) => {
+  const popup = getHeaderMoreVert();
+  if (!popup) return;
+
+  popup.innerHTML = "";
+  addItemToMoreVertMenu("No sorting", async () => {
+    Analytics.fireEvent("no_sorting_clicked");
+    await onSortedButtonClicked("NONE");
+  });
+  addItemToMoreVertMenu("Sort tabs by last used", async () => {
+    Analytics.fireEvent("sort_per_last_used_clicked");
+    if (currentSortMode == "ACTIVE_ASC") currentSortMode = "ACTIVE_DESC";
+    else currentSortMode = "ACTIVE_ASC";
+    await onSortedButtonClicked(currentSortMode);
+  });
+  addItemToMoreVertMenu("Sort tabs by domain", async () => {
+    Analytics.fireEvent("sort_per_domain_clicked");
+    if (currentSortMode == "SITE_ASC") currentSortMode = "SITE_DESC";
+    else currentSortMode = "SITE_ASC";
+    await onSortedButtonClicked(currentSortMode);
+  });
+  addItemToMoreVertMenu("Group tabs by domain", async () => {
+    chrome.permissions.request(
+      {
+        permissions: ["tabGroups"],
+      },
+      async (granted) => {
+        // The callback argument will be true if the user granted the permissions.
+        if (granted) {
+          Analytics.fireEvent("group_tabs_by_site");
+          const getSiteFromTabUrl = (tab) => {
+            let site = tab?.url ? new URL(tab.url) : { hostname: "" };
+            site = site.hostname.replace("www.", "");
+            return site.split(".").length > 2
+              ? site.split(".")[0] + "." + site.split(".")[1]
+              : site.split(".")[0];
+          };
+
+          // first add to existing groups
+          const groups = (await chrome.tabGroups.query({})) || [];
+          let existingGroupTitleToId = {};
+          for (let group of groups) {
+            existingGroupTitleToId[group.title] = group.id;
+          }
+          let tabs = await chrome.tabs.query({});
+          let sites = {};
+          for (let tab of tabs) {
+            if (tab.groupId === -1) {
+              const site = getSiteFromTabUrl(tab);
+              if (existingGroupTitleToId[site]) {
+                await chrome.tabs.group({
+                  tabIds: [tab.id],
+                  groupId: existingGroupTitleToId[site],
+                });
+              } else {
+                sites[site] = !sites[site] ? 1 : sites[site] + 1;
+              }
+            }
+          }
+
+          const tabsToGroup = {};
+          for (let tab of tabs) {
+            const site = getSiteFromTabUrl(tab);
+            if (sites[site] > 1 && tab.groupId === -1) {
+              if (!tabsToGroup[site]) {
+                tabsToGroup[site] = { name: site, tabs: [tab.id] };
+              } else {
+                tabsToGroup[site].tabs.push(tab.id);
+              }
+            }
+          }
+          for (let site in tabsToGroup) {
+            const randomColor = () => {
+              const colors = Object.keys(chrome.tabGroups.Color);
+              const colorKey =
+                colors[Math.floor(Math.random() * colors.length)];
+              return chrome.tabGroups.Color[colorKey];
+            };
+
+            const groupdId = await chrome.tabs.group({
+              tabIds: tabsToGroup[site].tabs,
+            });
+            await chrome.tabGroups.update(groupdId, {
+              title: site,
+              color: randomColor(),
+            });
+          }
+        } else {
+          Analytics.fireEvent("group_tabs_by_site_permission_declined");
+        }
+      },
+    );
+  });
+  const viewMode = await getViewMode();
+  console.log(viewMode);
+  addItemToMoreVertMenu(
+    viewMode === "tree" ? "List view" : "Tree view",
+    async () => {
+      const viewMode = await getViewMode();
+      const newViewMode = viewMode === "list" ? "tree" : "list";
+      setViewMode(newViewMode);
+      Analytics.fireEvent("view_mode_" + newViewMode);
+    },
+  );
+
+  const themeMode =
+    (await chrome.storage.local.get("theme")).theme || "classic_mode";
+  const toogleThemeModeId = "toogle_theme_mode";
+  addItemToMoreVertMenu(
+    `Use ${themeMode === "classic_mode" ? "dark" : "white"} mode`,
+    async () => {
+      Analytics.fireEvent("event_theme_toogle_clicked");
+      const upToDateMode =
+        (await chrome.storage.local.get("theme")).theme || "classic_mode";
+      let entry = {};
+      entry["theme"] =
+        upToDateMode === "classic_mode" ? "dark_mode" : "classic_mode";
+      chrome.storage.local.set(entry, function () {});
+      document.getElementById(toogleThemeModeId).textContent = `Use ${
+        entry["theme"] === "classic_mode" ? "dark" : "white"
+      } mode`;
+    },
+    toogleThemeModeId,
+  );
+
+  addItemToMoreVertMenu("Rate this extention", () => {
+    Analytics.fireEvent("Suggestions_button_clicked");
+    window
+      .open(
+        "https://chromewebstore.google.com/detail/vertical-tabs-side-panel/nelmjkbalflkmcnnnhjgiodpndcebfgo/reviews",
+        "_blank",
+      )
+      .focus();
+  });
+  addItemToMoreVertMenu("Suggestions and feedback", () => {
+    Analytics.fireEvent("suggestions_button_clicked");
+    window.open("https://forms.gle/pX1u5cpPRZFsPboo9", "_blank").focus();
+  });
 };
 
 export const CreateHeader = async (
@@ -449,29 +486,14 @@ export const CreateHeader = async (
 
   if (wrapper.children.length === 0) {
     const currentSortMode = await getSortBy();
-    const siteSortingButton = SiteSortingButton(
-      onSortedButtonClicked,
-      currentSortMode,
-    );
-    const groupTabsBySiteButton = GroupTabsBySiteButton();
-    const duplicatedTabs = DuplicatedTabs(onRemoveDuplicates);
-    const activeSortingButton = ActiveSortingButton(
-      onSortedButtonClicked,
-      currentSortMode,
-    );
 
     const header = document.createElement("div");
     header.className = "header-child";
-    const leftElementsHeader = document.createElement("div");
-    leftElementsHeader.className = "left-elements-wrapper";
-    leftElementsHeader.appendChild(siteSortingButton);
-    leftElementsHeader.appendChild(activeSortingButton);
-    header.appendChild(leftElementsHeader);
-    header.appendChild(TreeViewButton());
-    header.appendChild(duplicatedTabs);
-    header.appendChild(groupTabsBySiteButton);
+    header.appendChild(DuplicatedTabs(onRemoveDuplicates));
+    header.appendChild(getTabsCounter());
 
     wrapper.appendChild(header);
+    createMoreVertPopupElements(currentSortMode, onSortedButtonClicked);
   }
   ShowChipsIfNeeded(tabs);
   MaybeHighlightOrUnhighlightTabs(DUPLICATED_TABS_MAP);

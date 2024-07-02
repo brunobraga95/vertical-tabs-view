@@ -31,31 +31,28 @@ export async function LoadScheme() {
   const updateAgoTextColor = COLOR_SCHEMES[theme]?.updateAgoTextColor || "";
   const primaryColor = COLOR_SCHEMES[theme].primaryColor;
 
-  document.getElementById("suggestions-text").style.color =
-    COLOR_SCHEMES[theme].themeSectionColor;
-  document.getElementById("suggestions_theme_icon").style.color =
-    COLOR_SCHEMES[theme].themeSectionColor;
-  document.getElementById("donate-text").style.color =
-    COLOR_SCHEMES[theme].themeSectionColor;
-  document.getElementById("donate_theme_icon").style.color =
-    COLOR_SCHEMES[theme].themeSectionColor;
-  document.getElementById("toggle-theme-text").style.color =
-    COLOR_SCHEMES[theme].themeSectionColor;
-  document.getElementById("toggle_theme_icon").style.color =
-    COLOR_SCHEMES[theme].themeSectionColor;
   document.getElementById("body").style.backgroundColor = backgroundColor;
   document.getElementById("top-header").style.backgroundColor = backgroundColor;
+  document.getElementById("create-new-tab-button").style.color = titleColor;
+  document.getElementById("footer").style.backgroundColor = backgroundColor;
   document.getElementById("search-bar").style.backgroundColor = backgroundColor;
   document.getElementById("search-bar").style.color = titleColor;
 
-  const toogleThemeIcon = document.getElementById("toggle_theme_icon");
-  toogleThemeIcon.textContent =
-    theme === "dark_mode" ? "toggle_on" : "toggle_off";
-
-  document.getElementById("title").style.color = titleColor;
-
   const viewMode = await getViewMode();
   const sortBy = await getSortBy();
+
+  // Actions popup
+  Array.from(document.getElementsByClassName("more-vert-header-popup")).forEach(
+    (actionsPopup) => {
+      actionsPopup.style.backgroundColor =
+        theme === "dark_mode" ? "#555" : "#eee";
+    },
+  );
+  Array.from(
+    document.getElementsByClassName("more-vert-icon-item-wrapper"),
+  ).forEach((actionPopupItem) => {
+    actionPopupItem.style.color = theme === "dark_mode" ? "white" : "#333";
+  });
 
   Array.from(document.getElementsByClassName("header-button")).forEach(
     (headerButton) => {
@@ -89,6 +86,11 @@ export async function LoadScheme() {
   Array.from(document.getElementsByClassName("search-icon")).forEach((icon) => {
     icon.style.color = primaryColor;
   });
+  Array.from(document.getElementsByClassName("more-vert-icon-header")).forEach(
+    (icon) => {
+      icon.style.color = primaryColor;
+    },
+  );
   Array.from(document.getElementsByClassName("headerIcon")).forEach((icon) => {
     if (icon.id === "treeHeaderIcon") {
       if (viewMode === "tree") {
@@ -172,11 +174,8 @@ export async function LoadScheme() {
   );
   Array.from(document.getElementsByClassName("site-wrapper")).forEach(
     (siteWrapper) => {
-      if (viewMode !== "list") {
-        console.log("loading...");
-        siteWrapper.style.backgroundColor =
-          theme === "dark_mode" ? "#404040" : "#eee";
-      }
+      siteWrapper.style.backgroundColor =
+        theme === "dark_mode" ? "#404040" : "#eee";
     },
   );
 }
@@ -290,7 +289,9 @@ const sortTabsAndAddMetadata = async (sortBy) => {
       openerTabId,
     };
   });
-  sortedTabs.sort((a, b) => CreateTabsListCompare(a, b, sortBy));
+  if (sortedTabs !== "NONE")
+    sortedTabs.sort((a, b) => CreateTabsListCompare(a, b, sortBy));
+
   return sortedTabs;
 };
 
@@ -433,9 +434,12 @@ chrome.storage.onChanged.addListener(async (changes, namespace) => {
     if (key === "viewMode") {
       await CreateTabsList();
       const currentTab = await getCurrentTab();
-      if (currentTab) FocusonTabWithId(currentTab.id);
+      if (currentTab) {
+        FocusonTabWithId(currentTab.id);
+      }
       continue;
     }
+
     if (!isNaN(key)) {
       // If deleted scroll to top.
       const deleted = !isNaN(key) && oldValue && !newValue;
@@ -443,9 +447,10 @@ chrome.storage.onChanged.addListener(async (changes, namespace) => {
         const deletedTab = GetTabWrapperFromID(key);
         const sibling =
           deletedTab.nextElementSibling || deletedTab.previousElementSibling;
-
         await CreateTabsList();
-        if (!sibling) return;
+
+        const siblingId = sibling.getAttribute("id").split("tab_wrapper_")[1];
+        if (!sibling || (siblingId && key != parseInt(siblingId))) return;
 
         const idTabToFocus = GetTabIdFromTabWrapperElement(sibling);
         if (!idTabToFocus) return;

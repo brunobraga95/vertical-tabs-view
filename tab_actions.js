@@ -61,6 +61,7 @@ export const focusOnTabEvent = (e) => {
 };
 
 export const onCloseTabEvent = (e) => {
+  event.stopPropagation();
   Analytics.fireEvent("close_tab_clicked");
   onCloseTab(e.currentTarget.tabId);
 };

@@ -8,11 +8,13 @@
   width: 100%;
   border: none;
   padding: 5px;
-  height: 15px;
-  border-radius: 5px 0 0 5px;
+  height: 20px;
+  border-radius: 10px;
   outline: none;
   color: #757b86;
   margin-bottom: 10px;
+  padding-left: 30px;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 }
 
 .searchTerm:focus {
@@ -20,10 +22,11 @@
 }
 
 .search-icon {
-  top: 2px;
-  font-size: 5px;
+  position: absolute;
+  left: 5px;
+  top: 3px;
 }
 
-.duplicated-tabs-wrapper {
+.header-chip-wrapper {
   cursor: pointer;
 }
